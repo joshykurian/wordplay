@@ -1,0 +1,68 @@
+name: Deploy Wordplay to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          python3 -m json.tool config.json > /dev/null
+          python3 -m json.tool manifest.webmanifest > /dev/null
+          echo "JSON files are valid"
+
+      - name: Make sure config.json holds no secrets
+        run: |
+          if grep -qiE '"(apikey|api_key|key|token|secret|password)"[[:space:]]*:' config.json; then
+            echo "::error::config.json contains a secret-like field. Remove it and keep keys on the server."
+            exit 1
+          fi
+          echo "No secret-like fields found"
+
+      - name: Check game script syntax
+        run: |
+          python3 -c "import re; h=open('index.html',encoding='utf-8').read(); open('/tmp/game.js','w',encoding='utf-8').write(re.findall(r'<script>(.*?)</script>', h, re.S)[0])"
+          node --check /tmp/game.js
+          echo "Game script syntax is valid"
+
+      - name: Check service worker syntax
+        run: node --check sw.js
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare the site folder (only public files)
+        run: |
+          mkdir -p _site/icons
+          cp index.html config.json manifest.webmanifest sw.js _site/
+          cp icons/*.png _site/icons/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

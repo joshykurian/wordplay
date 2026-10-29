@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wordplay - Scripture Engagement Game</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2e6b4f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wordplay">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#f6f4ef;--card:#ffffff;--ink:#222222;--muted:#5f6368;--accent:#2e6b4f;--gold:#c8842b;--head:#3b6fb6;--heart:#c0475b;--hands:#2e8b57;}
+@media (prefers-color-scheme: dark){:root{--bg:#1b1d1f;--card:#262a2d;--ink:#eeeeee;--muted:#b0b4b8;--accent:#5fbf8f;--gold:#e0a24f;}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Malayalam","Noto Sans Devanagari","Noto Sans Tamil","Noto Sans Telugu","Noto Sans Kannada","Noto Sans Bengali","Noto Sans Gujarati","Noto Sans Gurmukhi",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+header{padding:14px 20px;background:var(--accent);color:#fff}
+header h1{margin:0;font-size:1.25rem;font-weight:700}
+header p{margin:2px 0 0;font-size:.85rem;opacity:.9}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+#who{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;font-size:.9rem}
+nav{margin-top:8px}
+nav button{background:rgba(255,255,255,.18);color:#fff;margin:4px 6px 0 0;padding:6px 12px;font-size:.88rem}
+nav button.on{background:#fff;color:var(--accent)}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2,.card h3{margin:.2em 0 .5em}
+.badge{display:inline-block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:999px;color:#fff;margin-bottom:8px}
+.b-head{background:var(--head)} .b-heart{background:var(--heart)} .b-hands{background:var(--hands)} .b-game{background:var(--gold)}
+button{font:inherit;padding:10px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;margin:6px 6px 6px 0}
+button.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+button:disabled{opacity:.45;cursor:default}
+button.opt{display:block;width:100%;text-align:left;background:var(--bg);color:var(--ink);border:1px solid rgba(127,127,127,.35);margin:6px 0;padding:12px 14px}
+button.opt.correct{background:#cfe9da;color:#111;border-color:#2e8b57}
+button.opt.wrong{background:#f5d0d4;color:#111;border-color:#c0475b}
+textarea,input[type=text]{width:100%;font:inherit;padding:10px;border-radius:8px;border:1px solid rgba(127,127,127,.4);background:var(--bg);color:var(--ink)}
+input.blank{width:auto;display:inline-block;min-width:90px;max-width:140px;padding:4px 6px;text-align:center;border-bottom:2px solid var(--gold);border-top:none;border-left:none;border-right:none;border-radius:0}
+.verse{font-size:1.08rem;font-style:italic;background:var(--bg);padding:14px;border-radius:8px}
+.muted{color:var(--muted);font-size:.9rem}
+.feedback{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--bg)}
+.order-row{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:8px;padding:10px;margin:6px 0}
+.order-row span{flex:1}
+.order-row button{margin:0;padding:6px 10px}
+.score{font-weight:700;color:var(--accent)}
+.icon{background:var(--bg);border-radius:10px;padding:10px;margin-bottom:12px}
+.icon svg{display:block;width:100%;max-width:240px;height:auto;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{background:var(--bg);border:1px solid rgba(127,127,127,.35);border-radius:10px;padding:10px;text-align:center;font-size:.92rem;margin:0;color:var(--ink)}
+.tile.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.avatars{display:flex;flex-wrap:wrap;gap:8px}
+.av{font-size:1.7rem;width:58px;height:58px;border-radius:50%;border:2px solid transparent;background:var(--bg);margin:0;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.av.sel{border-color:var(--gold);background:var(--card)}
+.avatar-chip{font-size:1.3rem}
+.av-svg{width:44px;height:44px;border-radius:50%;vertical-align:middle;display:inline-block}
+.av-wrap{display:inline-flex;flex-direction:column;align-items:center;width:72px;margin:0 2px 6px 0}
+.av-name{font-size:.78rem;margin-top:2px;text-align:center;color:var(--muted);line-height:1.2}
+.av .av-svg{width:52px;height:52px}
+#who .av-svg{width:30px;height:30px}
+h2 .av-svg{width:40px;height:40px;margin-right:4px}
+.xp{height:12px;background:rgba(127,127,127,.25);border-radius:6px;overflow:hidden;margin:8px 0}
+.xp div{height:100%;background:var(--gold);width:0;transition:width .4s}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.bt{background:var(--bg);border-radius:12px;padding:12px;text-align:center;font-size:.85rem}
+.bt.locked{opacity:.4;filter:grayscale(1)}
+.bt .ico{font-size:1.8rem}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid rgba(127,127,127,.2);text-align:left;font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin:10px 0}
+.stat{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:1.4rem;color:var(--accent)}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--gold);color:#222;padding:10px 18px;border-radius:999px;font-weight:700;display:none;box-shadow:0 4px 12px rgba(0,0,0,.25);z-index:10}
+#toast.show{display:block}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div>
+      <h1>Wordplay</h1>
+      <p>Play - Feel - Live. Head - Heart - Hands journeys</p>
+    </div>
+    <div id="who"></div>
+  </div>
+  <nav id="nav"></nav>
+</header>
+
+<main>
+  <div id="stage"></div>
+</main>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIGURATION
+   Add Bible Brain audio or film links here. Empty = placeholder.
+   Bible text: King James Version (public domain).
+   ============================================================ */
+const CONFIG = {
+  echoAudio: "",
+  sceneVideo: "",
+  covenantAudio: "",
+  quizAudio: ""
+};
+
+/* ============================================================
+   INTERFACE LANGUAGE
+   Interface labels are available in English and Malayalam.
+   Game content (questions, passages) is currently in English and
+   should be translated by local partners.
+   ============================================================ */
+const LANGS = {
+  en: "English", hi: "हिन्दी", ml: "മലയാളം", ta: "தமிழ்", te: "తెలుగు", kn: "ಕನ್ನಡ",
+  bn: "বাংলা", mr: "मराठी", gu: "ગુજરાતી", pa: "ਪੰਜਾਬੀ"
+};
+const UI = {
+  en: { home:"Home", play:"Play", progress:"My progress", board:"Leaderboard", profile:"Profile",
+        start:"Start", cont:"Continue", chooseBook:"Choose a book", ot:"Old Testament", nt:"New Testament",
+        name:"Your Name", avatar:"Choose your avatar", language:"Language", save:"Save",
+        points:"Points", games:"Games played", streak:"Day streak", level:"Level", badges:"Badges",
+        history:"Attendance history", rank:"Rank", finish:"Finish", back:"Back", playAgain:"Play again",
+        welcome:"Welcome to Wordplay", welcomeSub:"Enter your name and choose an avatar to begin.",
+        earned:"Points earned", nextLevel:"Next level", topLevel:"Highest level reached",
+        unlocked:"Badge unlocked", notice:"Content for this book is still being prepared. Showing material from:",
+        dailyGoal:"Play one game today to keep your streak alive.", noHistory:"No games attended yet.",
+        boardNote:"Scores are stored on this device. A shared leaderboard across devices needs a backend.",
+        switchPlayer:"Switch player", logout:"Log out", signIn:"Sign in", newPlayer:"Add a new player", clearHistory:"Clear my history" },
+  ml: { home:"ഹോം", play:"കളിക്കുക", progress:"എന്റെ പുരോഗതി", board:"ലീഡർബോർഡ്", profile:"പ്രൊഫൈൽ",
+        start:"ആരംഭിക്കുക", cont:"തുടരുക", chooseBook:"ഒരു പുസ്തകം തിരഞ്ഞെടുക്കുക", ot:"പഴയ നിയമം", nt:"പുതിയ നിയമം",
+        name:"നിങ്ങളുടെ പേര്", avatar:"അവതാർ തിരഞ്ഞെടുക്കുക", language:"ഭാഷ", save:"സംരക്ഷിക്കുക",
+        points:"പോയിന്റ്", games:"കളിച്ച ഗെയിമുകൾ", streak:"തുടർച്ചയായ ദിവസങ്ങൾ", level:"ലെവൽ", badges:"ബാഡ്ജുകൾ",
+        history:"പങ്കെടുത്ത ഗെയിമുകളുടെ ചരിത്രം", rank:"റാങ്ക്", finish:"പൂർത്തിയാക്കുക", back:"തിരികെ",
+        playAgain:"വീണ്ടും കളിക്കുക", welcome:"വേഡ്പ്ലേയിലേക്ക് സ്വാഗതം",
+        welcomeSub:"ഗെയിം പേരും അവതാറും നൽകി തുടങ്ങുക.", earned:"നേടിയ പോയിന്റ്", nextLevel:"അടുത്ത ലെവൽ",
+        topLevel:"ഉയർന്ന ലെവൽ", unlocked:"ബാഡ്ജ് നേടി",
+        notice:"ഈ പുസ്തകത്തിനുള്ള ഉള്ളടക്കം തയ്യാറാക്കിവരുന്നു. ഇതിൽ നിന്നുള്ള വിവരങ്ങൾ:",
+        dailyGoal:"നിങ്ങളുടെ തുടർച്ച നിലനിർത്താൻ ഇന്ന് ഒരു ഗെയിം കളിക്കുക.", noHistory:"ഇതുവരെ ഗെയിമുകളിൽ പങ്കെടുത്തിട്ടില്ല.",
+        boardNote:"സ്കോറുകൾ ഈ ഉപകരണത്തിൽ സൂക്ഷിക്കുന്നു.", switchPlayer:"കളിക്കാരനെ മാറ്റുക", logout:"ലോഗ് ഔട്ട്", signIn:"സൈൻ ഇൻ",
+        newPlayer:"പുതിയ കളിക്കാരനെ ചേർക്കുക", clearHistory:"എന്റെ ചരിത്രം മായ്ക്കുക" }
+};
+Object.assign(UI, {
+  hi: { home:"होम", play:"खेलें", progress:"मेरी प्रगति", board:"लीडरबोर्ड", profile:"प्रोफ़ाइल", cont:"जारी रखें",
+        chooseBook:"कोई पुस्तक चुनें", ot:"पुराना नियम", nt:"नया नियम", name:"आपका नाम", avatar:"अवतार चुनें",
+        language:"भाषा", save:"सहेजें", points:"अंक", games:"खेले गए गेम", streak:"लगातार दिन", level:"स्तर",
+        badges:"बैज", history:"उपस्थिति का इतिहास", rank:"रैंक", finish:"समाप्त करें", back:"वापस", playAgain:"फिर से खेलें",
+        welcome:"वर्डप्ले में आपका स्वागत है", welcomeSub:"शुरू करने के लिए अपना नाम और अवतार चुनें।",
+        earned:"अर्जित अंक", nextLevel:"अगला स्तर", topLevel:"सर्वोच्च स्तर प्राप्त", unlocked:"बैज अर्जित",
+        dailyGoal:"अपनी लगातार उपस्थिति बनाए रखने के लिए आज एक गेम खेलें।", noHistory:"अभी तक कोई गेम नहीं खेला गया।",
+        clearHistory:"मेरा इतिहास मिटाएँ", notice:"इस पुस्तक की सामग्री अभी तैयार की जा रही है। इनसे सामग्री दिखाई जा रही है:" },
+  ta: { home:"முகப்பு", play:"விளையாடு", progress:"என் முன்னேற்றம்", board:"தலைமைப் பட்டியல்", profile:"சுயவிவரம்", cont:"தொடரவும்",
+        chooseBook:"ஒரு நூலைத் தேர்ந்தெடுக்கவும்", ot:"பழைய ஏற்பாடு", nt:"புதிய ஏற்பாடு", name:"உங்கள் பெயர்",
+        avatar:"அவதாரைத் தேர்ந்தெடுக்கவும்", language:"மொழி", save:"சேமி", points:"புள்ளிகள்", games:"விளையாடிய விளையாட்டுகள்",
+        streak:"தொடர் நாட்கள்", level:"நிலை", badges:"பதக்கங்கள்", history:"பங்கேற்பு வரலாறு", rank:"தரவரிசை", finish:"முடி",
+        back:"பின்செல்", playAgain:"மீண்டும் விளையாடு", welcome:"வேர்ட்ப்ளேக்கு வரவேற்கிறோம்",
+        welcomeSub:"தொடங்க உங்கள் விளையாட்டுப் பெயரையும் அவதாரையும் உள்ளிடவும்.", earned:"பெற்ற புள்ளிகள்",
+        nextLevel:"அடுத்த நிலை", topLevel:"உயர்ந்த நிலை அடைந்தது", unlocked:"பதக்கம் பெறப்பட்டது",
+        noHistory:"இதுவரை விளையாட்டுகள் எதுவும் இல்லை.", clearHistory:"என் வரலாற்றை அழி" },
+  te: { home:"హోమ్", play:"ఆడండి", progress:"నా పురోగతి", board:"లీడర్‌బోర్డ్", profile:"ప్రొఫైల్", cont:"కొనసాగించు",
+        chooseBook:"ఒక పుస్తకాన్ని ఎంచుకోండి", ot:"పాత నిబంధన", nt:"కొత్త నిబంధన", name:"మీ పేరు",
+        avatar:"అవతార్‌ను ఎంచుకోండి", language:"భాష", save:"సేవ్ చేయి", points:"పాయింట్లు", games:"ఆడిన ఆటలు",
+        streak:"వరుస రోజులు", level:"స్థాయి", badges:"బ్యాడ్జ్‌లు", history:"హాజరు చరిత్ర", rank:"ర్యాంక్", finish:"ముగించు",
+        back:"వెనక్కి", playAgain:"మళ్లీ ఆడండి", welcome:"వర్డ్‌ప్లేకు స్వాగతం",
+        welcomeSub:"ప్రారంభించడానికి మీ గేమ్ పేరు మరియు అవతార్ ఇవ్వండి.", earned:"సంపాదించిన పాయింట్లు",
+        nextLevel:"తదుపరి స్థాయి", topLevel:"అత్యున్నత స్థాయి చేరుకున్నారు", unlocked:"బ్యాడ్జ్ అన్‌లాక్ అయింది",
+        noHistory:"ఇంకా ఆటలు ఆడలేదు.", clearHistory:"నా చరిత్రను తొలగించు" },
+  kn: { home:"ಮುಖಪುಟ", play:"ಆಡಿ", progress:"ನನ್ನ ಪ್ರಗತಿ", board:"ಲೀಡರ್‌ಬೋರ್ಡ್", profile:"ಪ್ರೊಫೈಲ್", cont:"ಮುಂದುವರಿಸಿ",
+        chooseBook:"ಒಂದು ಪುಸ್ತಕವನ್ನು ಆಯ್ಕೆಮಾಡಿ", ot:"ಹಳೆಯ ಒಡಂಬಡಿಕೆ", nt:"ಹೊಸ ಒಡಂಬಡಿಕೆ", name:"ನಿಮ್ಮ ಹೆಸರು",
+        avatar:"ಅವತಾರ ಆಯ್ಕೆಮಾಡಿ", language:"ಭಾಷೆ", save:"ಉಳಿಸಿ", points:"ಅಂಕಗಳು", games:"ಆಡಿದ ಆಟಗಳು",
+        streak:"ಸತತ ದಿನಗಳು", level:"ಮಟ್ಟ", badges:"ಬ್ಯಾಡ್ಜ್‌ಗಳು", history:"ಭಾಗವಹಿಸಿದ ಇತಿಹಾಸ", rank:"ಶ್ರೇಣಿ",
+        finish:"ಮುಗಿಸಿ", back:"ಹಿಂದೆ", playAgain:"ಮತ್ತೆ ಆಡಿ", welcome:"ವರ್ಡ್‌ಪ್ಲೇಗೆ ಸ್ವಾಗತ",
+        welcomeSub:"ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಆಟದ ಹೆಸರು ಮತ್ತು ಅವತಾರ ನೀಡಿ.", earned:"ಗಳಿಸಿದ ಅಂಕಗಳು", nextLevel:"ಮುಂದಿನ ಮಟ್ಟ",
+        topLevel:"ಅತ್ಯುನ್ನತ ಮಟ್ಟ ತಲುಪಿದೆ", unlocked:"ಬ್ಯಾಡ್ಜ್ ಅನ್‌ಲಾಕ್ ಆಗಿದೆ", noHistory:"ಇನ್ನೂ ಯಾವುದೇ ಆಟಗಳಿಲ್ಲ.",
+        clearHistory:"ನನ್ನ ಇತಿಹಾಸವನ್ನು ಅಳಿಸಿ" },
+  bn: { home:"হোম", play:"খেলুন", progress:"আমার অগ্রগতি", board:"লিডারবোর্ড", profile:"প্রোফাইল", cont:"চালিয়ে যান",
+        chooseBook:"একটি বই বেছে নিন", ot:"পুরাতন নিয়ম", nt:"নতুন নিয়ম", name:"আপনার নাম", avatar:"অবতার বেছে নিন",
+        language:"ভাষা", save:"সংরক্ষণ করুন", points:"পয়েন্ট", games:"খেলা গেম", streak:"ধারাবাহিক দিন", level:"স্তর",
+        badges:"ব্যাজ", history:"উপস্থিতির ইতিহাস", rank:"র‍্যাংক", finish:"শেষ করুন", back:"ফিরে যান", playAgain:"আবার খেলুন",
+        welcome:"ওয়ার্ডপ্লেতে স্বাগতম", welcomeSub:"শুরু করতে আপনার গেমের নাম ও অবতার দিন।", earned:"অর্জিত পয়েন্ট",
+        nextLevel:"পরবর্তী স্তর", topLevel:"সর্বোচ্চ স্তরে পৌঁছেছেন", unlocked:"ব্যাজ অর্জিত",
+        noHistory:"এখনো কোনো গেম খেলা হয়নি।", clearHistory:"আমার ইতিহাস মুছুন" },
+  mr: { home:"मुख्यपृष्ठ", play:"खेळा", progress:"माझी प्रगती", board:"लीडरबोर्ड", profile:"प्रोफाइल", cont:"पुढे चला",
+        chooseBook:"एक पुस्तक निवडा", ot:"जुना करार", nt:"नवा करार", name:"तुमचे नाव", avatar:"अवतार निवडा",
+        language:"भाषा", save:"जतन करा", points:"गुण", games:"खेळलेले गेम", streak:"सलग दिवस", level:"पातळी", badges:"बॅज",
+        history:"उपस्थितीचा इतिहास", rank:"क्रमांक", finish:"पूर्ण करा", back:"मागे", playAgain:"पुन्हा खेळा",
+        welcome:"वर्डप्लेमध्ये स्वागत आहे", welcomeSub:"सुरू करण्यासाठी तुमचे गेम नाव आणि अवतार निवडा.",
+        earned:"मिळवलेले गुण", nextLevel:"पुढील पातळी", topLevel:"सर्वोच्च पातळी गाठली", unlocked:"बॅज मिळाला",
+        noHistory:"अजून कोणतेही गेम खेळले नाहीत.", clearHistory:"माझा इतिहास पुसा" },
+  gu: { home:"હોમ", play:"રમો", progress:"મારી પ્રગતિ", board:"લીડરબોર્ડ", profile:"પ્રોફાઇલ", cont:"ચાલુ રાખો",
+        chooseBook:"એક પુસ્તક પસંદ કરો", ot:"જૂનો કરાર", nt:"નવો કરાર", name:"તમારું નામ", avatar:"અવતાર પસંદ કરો",
+        language:"ભાષા", save:"સાચવો", points:"પોઇન્ટ", games:"રમાયેલી ગેમ", streak:"સતત દિવસો", level:"સ્તર", badges:"બેજ",
+        history:"હાજરી ઇતિહાસ", rank:"ક્રમ", finish:"પૂર્ણ કરો", back:"પાછા", playAgain:"ફરી રમો",
+        welcome:"વર્ડપ્લેમાં આપનું સ્વાગત છે", welcomeSub:"શરૂ કરવા માટે તમારું ગેમ નામ અને અવતાર આપો.",
+        earned:"મેળવેલા પોઇન્ટ", nextLevel:"આગળનું સ્તર", topLevel:"સર્વોચ્ચ સ્તર પહોંચ્યા", unlocked:"બેજ અનલૉક થયો",
+        noHistory:"હજી સુધી કોઈ ગેમ રમાઈ નથી.", clearHistory:"મારો ઇતિહાસ સાફ કરો" },
+  pa: { home:"ਹੋਮ", play:"ਖੇਡੋ", progress:"ਮੇਰੀ ਤਰੱਕੀ", board:"ਲੀਡਰਬੋਰਡ", profile:"ਪ੍ਰੋਫ਼ਾਈਲ", cont:"ਜਾਰੀ ਰੱਖੋ",
+        chooseBook:"ਇੱਕ ਕਿਤਾਬ ਚੁਣੋ", ot:"ਪੁਰਾਣਾ ਨੇਮ", nt:"ਨਵਾਂ ਨੇਮ", name:"ਤੁਹਾਡਾ ਨਾਮ", avatar:"ਅਵਤਾਰ ਚੁਣੋ",
+        language:"ਭਾਸ਼ਾ", save:"ਸੰਭਾਲੋ", points:"ਅੰਕ", games:"ਖੇਡੀਆਂ ਗੇਮਾਂ", streak:"ਲਗਾਤਾਰ ਦਿਨ", level:"ਪੱਧਰ", badges:"ਬੈਜ",
+        history:"ਹਾਜ਼ਰੀ ਇਤਿਹਾਸ", rank:"ਦਰਜਾ", finish:"ਮੁਕੰਮਲ ਕਰੋ", back:"ਵਾਪਸ", playAgain:"ਦੁਬਾਰਾ ਖੇਡੋ",
+        welcome:"ਵਰਡਪਲੇ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ", welcomeSub:"ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਆਪਣਾ ਗੇਮ ਨਾਮ ਅਤੇ ਅਵਤਾਰ ਦਰਜ ਕਰੋ।",
+        earned:"ਕਮਾਏ ਅੰਕ", nextLevel:"ਅਗਲਾ ਪੱਧਰ", topLevel:"ਸਭ ਤੋਂ ਉੱਚਾ ਪੱਧਰ ਪ੍ਰਾਪਤ", unlocked:"ਬੈਜ ਮਿਲਿਆ",
+        noHistory:"ਅਜੇ ਤੱਕ ਕੋਈ ਗੇਮ ਨਹੀਂ ਖੇਡੀ ਗਈ।", clearHistory:"ਮੇਰਾ ਇਤਿਹਾਸ ਮਿਟਾਓ" }
+});
+function T(k){
+  const l = (DB.players[DB.activeId] || {}).lang || "en";
+  return (UI[l] && UI[l][k]) || UI.en[k] || k;
+}
+
+/* ============================================================
+   BIBLE BOOKS
+   ============================================================ */
+const OT_BOOKS = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Songs","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi"];
+const NT_BOOKS = ["Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+const TEST = book => OT_BOOKS.includes(book) ? "OT" : "NT";
+
+/* ============================================================
+   CONTENT BANK
+   Every item carries a "book". The game first uses items from the
+   selected book, then the same testament, then any book, so every
+   module always has content. Add items to grow coverage per book.
+   ============================================================ */
+const ECHO = [
+  { book:"Luke", ref:"Luke 15:11-24", title:"The lost son", elements:[
+    {label:"He asked for his share of the inheritance", keys:["inheritance","share","portion"]},
+    {label:"He left for a far country", keys:["far country","far","left"]},
+    {label:"He wasted his money", keys:["waste","spent","squander"]},
+    {label:"A famine came and he was in need", keys:["famine","hunger","hungry","need"]},
+    {label:"He came back to his father", keys:["return","came back","went back","came to himself","home"]},
+    {label:"The father ran to him and welcomed him", keys:["ran","run","embrace","welcome","kissed","hugged"]} ],
+    heart:"Which moment in this story stayed with you, and why?",
+    mission:"Retell this story to one person outside this game this week." },
+  { book:"Jonah", ref:"Jonah 1-3", title:"Jonah and the great fish", elements:[
+    {label:"God called Jonah to go to Nineveh", keys:["nineveh","called","sent","go to"]},
+    {label:"Jonah ran away by ship", keys:["ship","ran","fled","run away","boat"]},
+    {label:"A great storm came upon the sea", keys:["storm","wind","sea"]},
+    {label:"Jonah was thrown into the sea and swallowed by a fish", keys:["fish","swallow"]},
+    {label:"Jonah prayed from inside the fish", keys:["pray","prayed","prayer"]},
+    {label:"Jonah obeyed and went to Nineveh", keys:["obey","went","nineveh"]} ],
+    heart:"Where is God asking you to say yes today?",
+    mission:"Take one step of obedience this week that you have been putting off." }
+];
+
+const SCENE = [
+  { book:"Mark", ref:"Mark 2:1-12", title:"A paralysed man brought to Jesus", film:"Gospel Film", questions:[
+    {q:"Who carried the paralysed man to Jesus?", options:["A blind man","Four friends carrying him on a mat","A child","A soldier"], correct:1, note:"The crowd blocked the door, so the friends lifted him up to the roof."},
+    {q:"What did Jesus say to the man first?", options:["Get up and walk","Your sins are forgiven","Go home to your family","Be healed"], correct:1, note:"Jesus addressed the deeper need before the physical healing."},
+    {q:"Where was Jesus teaching?", options:["By the sea","In a crowded house","In the temple courts","On a mountain"], correct:1, note:"The crowd filled the house and even the doorway."} ],
+    heart:"What does this scene show about Jesus? Which person do you relate to, and why?",
+    mission:"Help someone who cannot reach help on their own this week, or carry their need in prayer." },
+  { book:"Luke", ref:"Luke 10:25-37", title:"The Good Samaritan", film:"Gospel Film", questions:[
+    {q:"Who was left half dead on the road to Jericho?", options:["A traveller","A priest","A merchant","A child"], correct:0, note:"Luke 10:30."},
+    {q:"Which two people passed by without helping?", options:["A priest and a Levite","Two soldiers","Two fishermen","Two tax collectors"], correct:0, note:"Luke 10:31-32."},
+    {q:"Who took the injured man to an inn?", options:["A Samaritan","A Roman soldier","A shepherd","A king"], correct:0, note:"Luke 10:33-34."} ],
+    heart:"Who in your life needs you to stop and help, even when it is inconvenient?",
+    mission:"Do one practical act of kindness this week for someone you would normally pass by." },
+  { book:"Acts", ref:"Acts 2:1-4", title:"Pentecost", film:"Acts Film", questions:[
+    {q:"What sound came from heaven at Pentecost?", options:["A rushing mighty wind","Thunder over the sea","A trumpet from the temple","A choir of angels"], correct:0, note:"Acts 2:2."},
+    {q:"What appeared over each person?", options:["Tongues as of fire","A bright star","A dove","A cloud"], correct:0, note:"Acts 2:3."},
+    {q:"What happened when they were filled with the Spirit?", options:["They began to speak in other languages","They fell asleep","They left Jerusalem","They built a temple"], correct:0, note:"Acts 2:4."} ],
+    heart:"How would you like the Holy Spirit to empower you to share your faith?",
+    mission:"Share one thing God has done in your life with a friend this week." },
+  { book:"Genesis", ref:"Genesis 8:6-13; 9:12-13", title:"Noah sends out the birds", film:"Covenant Film - Noah", questions:[
+    {q:"Which bird did Noah send out first?", options:["A raven","A dove","An eagle","A sparrow"], correct:0, note:"Genesis 8:7."},
+    {q:"What did the dove bring back?", options:["A fig leaf","A fresh olive leaf","A palm branch","A grape vine"], correct:1, note:"Genesis 8:11."},
+    {q:"What did God give as the sign of his covenant?", options:["A rainbow","A bright star","A cloud of fire","A pillar of salt"], correct:0, note:"Genesis 9:13."} ],
+    heart:"How has God kept his promises to you when you could not see the way forward?",
+    mission:"Remember one promise of God this week and thank him for it in prayer." }
+];
+const SCENE_OLD = [
+  { book:"Mark", ref:"Mark 2:1-12", title:"A paralysed man brought to Jesus", questions:[
+    {q:"Who carried the paralysed man to Jesus?", options:["A blind man","Four friends carrying him on a mat","A child","A soldier"], correct:1, note:"The crowd blocked the door, so the friends lifted him up to the roof."},
+    {q:"What did Jesus say to the man first?", options:["Get up and walk","Your sins are forgiven","Go home to your family","Be healed"], correct:1, note:"Jesus addressed the deeper need before the physical healing."},
+    {q:"Where was Jesus teaching?", options:["By the sea","In a crowded house","In the temple courts","On a mountain"], correct:1, note:"The crowd filled the house and even the doorway."} ],
+    heart:"What does this scene show about Jesus? Which person do you relate to, and why?",
+    mission:"Help someone who cannot reach help on their own this week, or carry their need in prayer." },
+  { book:"Exodus", ref:"Exodus 14", title:"Crossing the Red Sea", questions:[
+    {q:"What did Moses stretch out over the sea?", options:["A sword","His hand with the staff","A banner","A net"], correct:1, note:"At God's command, Moses stretched out his hand over the sea."},
+    {q:"What happened to the water?", options:["It boiled","It was divided so the people could walk through","It turned to blood","It froze"], correct:1, note:"The waters stood like walls on the right and on the left."},
+    {q:"Who pursued the Israelites?", options:["The Philistines","The Egyptian army","The Assyrians","The Moabites"], correct:1, note:"Pharaoh's army pursued them into the sea."} ],
+    heart:"When have you seen God make a way where there seemed to be none?",
+    mission:"Share one story of God's faithfulness with a friend or family member this week." }
+];
+
+/* Covenant Quest follows The Covenant (Bible Media Group / Lumo Project), an Old Testament film
+   covering the Torah, narrated through the eyes of Ezra. Nodes follow the film's story order.
+   Film timestamps are to be confirmed against the official chapter list. */
+const COVENANT_NOTE = "Covenant Quest follows The Covenant film (Bible Media Group), covering Genesis to Exodus.";
+const COVENANT = [
+  { book:"Genesis", film:"The Garden of Eden", ref:"Genesis 2-3", title:"Adam and Eve",
+    q:"What did God forbid Adam and Eve to eat from?",
+    options:["The fruit of the tree of knowledge of good and evil","Bread from the field","Fruit from the vine","Honey from the rock"], correct:0,
+    note:"Genesis 2:17 and 3:1-6.",
+    heart:"Where are you tempted to trust your own judgement over God's word?",
+    mission:"Choose one decision this week and ask God for guidance before you act." },
+  { book:"Genesis", film:"Cain and Abel", ref:"Genesis 4", title:"Cain and Abel",
+    q:"Which brother kept sheep?",
+    options:["Cain","Abel","Seth","Enoch"], correct:1,
+    note:"Genesis 4:2 - Abel kept sheep and Cain worked the ground.",
+    heart:"How do you respond when someone else is blessed and you are not?",
+    mission:"Encourage someone this week who seems to be doing better than you." },
+  { book:"Genesis", film:"Noah", ref:"Genesis 6-9", title:"Noah and the ark",
+    q:"What did God command Noah to build?",
+    options:["A tower","An ark","A temple","A tent"], correct:1,
+    note:"Genesis 6:14 - Noah obeyed God and built the ark.",
+    heart:"What is God asking you to build in obedience, even when others do not understand?",
+    mission:"Take one step this week to obey God in something you have been delaying." },
+  { book:"Genesis", film:"Abraham", ref:"Genesis 12:1-3", title:"Abraham's call",
+    q:"What did God tell Abraham to do at the start of his journey?",
+    options:["Stay in his own country","Leave his country and go to the land God would show him","Build a city in Egypt","Return to his father's house"], correct:1,
+    note:"Genesis 12:1 - God called Abraham to leave his country and follow him.",
+    heart:"What would it cost you to say yes to God's next step?",
+    mission:"Tell a friend about one step of faith you are taking, and ask them to pray for you." },
+  { book:"Genesis", film:"Isaac and Rebekah", ref:"Genesis 24", title:"Isaac and Rebekah",
+    q:"Whom did Abraham's servant bring back as a wife for Isaac?",
+    options:["Leah","Rebekah","Rachel","Sarah"], correct:1,
+    note:"Genesis 24 - God guided the servant to Rebekah at the well.",
+    heart:"Where have you seen God guide you through ordinary moments?",
+    mission:"Pray for guidance about one decision and write down what you sense God is saying." },
+  { book:"Genesis", film:"Joseph", ref:"Genesis 45", title:"Joseph forgives his brothers",
+    q:"What did Joseph say when he revealed himself to his brothers?",
+    options:["I will punish you all","I am Joseph, your brother, whom you sold","Leave Egypt at once","Say nothing about this"], correct:1,
+    note:"Genesis 45:4-5 - Joseph named what they had done and then chose reconciliation.",
+    heart:"Which relationship in your life needs this kind of honesty and forgiveness?",
+    mission:"Offer a sincere word of peace to someone you have been holding a hurt against." },
+  { book:"Exodus", film:"Moses and the burning bush", ref:"Exodus 3:1-4", title:"Moses and the burning bush",
+    q:"What did God call out to Moses from the burning bush?",
+    options:["Go down to Egypt","Moses, Moses","Build an altar","Speak to Pharaoh"], correct:1,
+    note:"Exodus 3:4 - God called Moses by name from the bush.",
+    heart:"When has God called you by name in a quiet moment?",
+    mission:"Listen to one passage of Exodus in audio this week, and note what God is saying to you." },
+  { book:"Exodus", film:"Miriam and Aaron", ref:"Exodus 2:4", title:"Miriam and Aaron",
+    q:"Who was the sister who watched over baby Moses by the river?",
+    options:["Deborah","Miriam","Hannah","Rebekah"], correct:1,
+    note:"Exodus 2:4 - Miriam stood at a distance to see what would happen to him.",
+    heart:"Who in your life has quietly watched over you and served you faithfully?",
+    mission:"Thank someone who has served you faithfully, in person or by message." },
+  { book:"Exodus", film:"Part 16 - The Tabernacle", ref:"Exodus 25:8", title:"The Tabernacle",
+    q:"What did God ask the people to build so that he could dwell among them?",
+    options:["A sanctuary","A wall around the city","A bridge","A throne in the sky"], correct:0,
+    note:"Exodus 25:8 - Let them make me a sanctuary, that I may dwell among them.",
+    heart:"What does it mean to you that God wants to dwell with his people?",
+    mission:"Set aside a regular time this week to meet with God in prayer or listening." }
+];
+const COVENANT_OLD = [
+  { book:"Genesis", testament:"OT", title:"Abraham - trust", ref:"Genesis 22",
+    q:"When God asked Abraham to offer Isaac, what was his answer?",
+    options:["He argued with God","He said, Here am I","He ran away","He asked for a sign first"], correct:1,
+    note:"Abraham's reply shows readiness to listen and trust.",
+    heart:"Abraham trusted God before he could see the outcome. What are you finding hard to trust God with?",
+    mission:"Pray about that matter with a friend this week." },
+  { book:"Genesis", title:"Joseph - forgiveness", ref:"Genesis 45",
+    q:"What did Joseph say when he revealed himself to his brothers?",
+    options:["I will punish you all","I am Joseph, your brother, whom you sold","Leave Egypt at once","Say nothing about this"], correct:1,
+    note:"Joseph named the wrong done to him and then chose reconciliation.",
+    heart:"Which relationship in your life needs this kind of honesty and forgiveness?",
+    mission:"Offer a sincere word of peace to someone you have been holding a hurt against." },
+  { book:"Ruth", title:"Ruth - loyalty", ref:"Ruth 1:16",
+    q:"What did Ruth say when she chose to stay with Naomi?",
+    options:["I will go back to my people","Whither thou goest, I will go","Find me a husband in Moab","I cannot help you"], correct:1,
+    note:"Ruth's words are a vow of loyalty that changed her future.",
+    heart:"Where is God calling you to faithful loyalty right now?",
+    mission:"Spend one practical hour this week helping an older person or a family member." },
+  { book:"John", title:"Peter - restoration", ref:"John 21:15-17",
+    q:"How many times did Jesus ask Peter whether he loved him?",
+    options:["Once","Twice","Three times","Five times"], correct:2,
+    note:"Jesus restored Peter, who had denied him three times.",
+    heart:"Where do you need Jesus to restore you?",
+    mission:"Reach out to someone you have let down, or who has let you down." }
+];
+
+const WHO_SAID = [
+  { book:"Genesis", quote:"Here am I.", options:["Abraham","Jacob","Joseph","Moses"], correct:0, note:"Genesis 22:1 - Abraham's answer to God's call." },
+  { book:"Genesis", quote:"I will not let thee go, except thou bless me.", options:["Jacob","Esau","Elijah","Nathan"], correct:0, note:"Genesis 32:26 - Jacob at the River Jabbok." },
+  { book:"Esther", quote:"If I perish, I perish.", options:["Ruth","Esther","Deborah","Hannah"], correct:1, note:"Esther 4:16 - Esther's courageous reply to Mordecai." },
+  { book:"Luke", quote:"Lord, I have sinned against heaven, and in thy sight.", options:["Peter","The prodigal son","Jonah","Zacchaeus"], correct:1, note:"Luke 15:21 - the son who returned to his father." },
+  { book:"John", quote:"Lord, to whom shall we go? thou hast the words of eternal life.", options:["Thomas","Peter","John","Philip"], correct:1, note:"John 6:68 - Peter's confession after many left Jesus." }
+];
+
+const STORY = [
+  { book:"Luke", ref:"Luke 10:25-37", title:"The Good Samaritan", cards:[
+    "A traveller is attacked and left half dead on the road to Jericho",
+    "A priest and a Levite see him and pass by on the other side",
+    "A Samaritan stops, binds his wounds and takes him to an inn",
+    "Jesus asks which of the three was neighbour to the injured man" ],
+    heart:"Which card shows when God helped someone in need? Why does it matter to you?",
+    mission:"Tell this story to a parent, sibling or friend, and record it if you can." }
+];
+
+const MEMORY = [
+  { book:"John", ref:"John 3:16", template:"For God so [[loved]] the [[world]], that he gave his only begotten [[Son]], that whosoever believeth in him should not [[perish]], but have [[everlasting]] life." },
+  { book:"Psalms", ref:"Psalm 119:105", template:"Thy [[word]] is a [[lamp]] unto my feet, and a [[light]] unto my [[path]]." }
+];
+
+const QUICK = [
+  {book:"Psalms", q:"Which book of the Bible has the most chapters?", options:["Genesis","Psalms","Isaiah","Jeremiah"], correct:1, ref:"Psalms (150 chapters)", info:"Psalms is a collection of songs and prayers, many of them attributed to David.", heart:"Which psalm has helped you through a hard season?"},
+  {book:"Jonah", q:"Who was swallowed by a great fish?", options:["Elijah","Jonah","Daniel","Hosea"], correct:1, ref:"Jonah 1:17", info:"Jonah ran from God's call, and God used the great fish to bring him back.", heart:"Where is God asking you to say yes today?"},
+  {book:"Genesis", q:"Who was the first man God created?", options:["Adam","Noah","Abel","Enoch"], correct:0, ref:"Genesis 2:7", info:"God formed Adam from the dust of the ground and breathed life into him.", heart:"What does it mean to you that God made each person with care?"},
+  {book:"Genesis", q:"For how many days did rain fall during the flood?", options:["Seven","Twelve","Forty","One hundred and fifty"], correct:2, ref:"Genesis 7:12", info:"God preserved Noah and his family, and then made a covenant with them.", heart:"How has God shown faithfulness to you in a difficult season?"},
+  {book:"Exodus", q:"Who led the Israelites out of Egypt?", options:["Joshua","Moses","Aaron","Samuel"], correct:1, ref:"Exodus 3-14", info:"Through Moses, God brought his people out of slavery and parted the Red Sea.", heart:"When have you seen God make a way where there seemed to be none?"},
+  {book:"1 Kings", q:"Which king built the first temple in Jerusalem?", options:["David","Solomon","Hezekiah","Saul"], correct:1, ref:"1 Kings 6", info:"David prepared the plans and materials, and his son Solomon built the temple.", heart:"What place or practice helps you meet with God?"},
+  {book:"Matthew", q:"In which town was Jesus born?", options:["Nazareth","Bethlehem","Jerusalem","Capernaum"], correct:1, ref:"Matthew 2:1", info:"The prophet Micah had foretold that a ruler would come from Bethlehem.", heart:"What does the humble birth of Jesus teach you about how God works?"},
+  {book:"Matthew", q:"Who betrayed Jesus for thirty pieces of silver?", options:["Peter","Judas Iscariot","Thomas","Matthew"], correct:1, ref:"Matthew 26:14-16", info:"Judas agreed to hand Jesus over to the chief priests for thirty pieces of silver.", heart:"What tempts you to trade your faithfulness for something smaller?"},
+  {book:"Mark", q:"How many disciples did Jesus choose as his closest followers?", options:["Seven","Ten","Twelve","Seventy"], correct:2, ref:"Mark 3:14", info:"Jesus chose twelve apostles to be with him and to be sent out to preach.", heart:"Who has walked with you in your faith journey?"},
+  {book:"John", q:"What was the first miracle Jesus performed?", options:["Turning water into wine","Healing the official's son","Feeding five thousand","Walking on water"], correct:0, ref:"John 2:1-11", info:"At a wedding in Cana, Jesus turned water into wine, and his disciples believed in him.", heart:"What is one area where you want to see Jesus transform something today?"},
+  {book:"1 Corinthians", q:"Which three things remain, according to 1 Corinthians 13:13?", options:["Faith, hope and love","Wisdom, knowledge and power","Grace, mercy and peace","Gold, silver and bronze"], correct:0, ref:"1 Corinthians 13:13", info:"Paul writes that faith, hope and love remain, and the greatest of these is love.", heart:"How can you show love in a practical way this week?"}
+];
+
+const WHO_AM_I = [
+  { book:"Esther", clues:[
+      "I was a Jewish orphan raised by my cousin in a foreign land.",
+      "I was chosen to become queen of a great king.",
+      "At first I did not reveal who my people were.",
+      "My cousin asked me to speak to the king on behalf of my people.",
+      "My reply was: 'If I perish, I perish.' Who am I?" ],
+    answer:"Esther", ref:"Esther 4:16",
+    info:"Esther risked her life to plead before the king, trusting that she had come to her position for such a time as this.",
+    heart:"When has God placed you somewhere for a purpose you did not expect?" },
+  { book:"Acts", clues:[
+      "I sold a field and laid the money at the apostles' feet.",
+      "I was a Levite from Cyprus.",
+      "When the believers feared Saul, I brought him to the apostles.",
+      "After a disagreement over John Mark, I parted ways with Paul.",
+      "The apostles called me 'son of encouragement'. What was my original name?" ],
+    answer:"Joses, also called Barnabas", ref:"Acts 4:36-37; 9:27; 15:36-39",
+    info:"Barnabas means 'son of encouragement'. He was the one who encouraged others, including Saul.",
+    heart:"Who has encouraged you recently, and whom could you encourage this week?" }
+];
+
+const LISTENING = [
+  { book:"Luke", title:"The Prodigal Son (Luke 15:11-32)", questions:[
+    {q:"What did the younger son ask his father for?", options:["A new house","His share of the inheritance","A horse","Money for a feast"], correct:1},
+    {q:"Where did the younger son go?", options:["To a far country","To the next village","To the temple","To the sea"], correct:0},
+    {q:"What did the father do when he saw his son coming home?", options:["He waited at the gate in anger","He ran to him and embraced him","He sent a servant away","He turned his back"], correct:1},
+    {q:"What did the father call for to celebrate his son's return?", options:["A feast","A court trial","A long journey","A new harvest"], correct:0},
+    {q:"How did the older son respond to the celebration?", options:["He was glad and joined in","He was angry and refused to go in","He left home at once","He asked for his own inheritance"], correct:1} ] }
+];
+
+/* Selects content: selected book first, then same testament, then all */
+function pool(items, n){
+  const b = items.filter(i => i.book === ctx.book);
+  const t = items.filter(i => i.book !== ctx.book && TEST(i.book) === ctx.testament);
+  const o = items.filter(i => TEST(i.book) !== ctx.testament);
+  return [...b, ...t, ...o].slice(0, n);
+}
+function notice(picked){
+  const off = [...new Set(picked.filter(i => i.book !== ctx.book).map(i => i.book))];
+  if(!off.length) return "";
+  return `<p class="muted">${T("notice")} ${off.join(", ")}.</p>`;
+}
+
+/* ============================================================
+   STORAGE (persists on this device when opened in a browser or
+   published; falls back to session memory if storage is blocked)
+   ============================================================ */
+const KEY = "wordplay.v1";
+function loadDB(){
+  try{ const raw = localStorage.getItem(KEY); if(raw) return JSON.parse(raw); }catch(e){}
+  return { players:{}, sessions:[], activeId:null };
+}
+function saveDB(){
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){}
+}
+let DB = loadDB();
+let ctx = { book:"Genesis", testament:"OT" };
+let quizTeams = [], quizScores = {}, quizIdx = 0, quizTimer = null, quizRounds = [];
+
+/* ============================================================
+   GAMIFICATION
+   Points: attendance, Head score, Heart reflection, Hands mission.
+   Levels, badges, streaks and a personal history.
+   ============================================================ */
+const ATTEND_POINTS = 5, HEART_POINTS = 2, HANDS_POINTS = 3;
+const LEVELS = [
+  {min:0, name:"Seedling", icon:"🌱"}, {min:50, name:"Sprout", icon:"🌿"},
+  {min:150, name:"Disciple", icon:"📖"}, {min:300, name:"Steward", icon:"🛡️"},
+  {min:600, name:"Witness", icon:"🕊️"}, {min:1000, name:"Champion", icon:"🏆"}
+];
+const BADGES = [
+  {id:"first", icon:"🎉", name:"First Steps", desc:"Attend your first game", test:s=>s.games>=1},
+  {id:"explorer", icon:"🧭", name:"Book Explorer", desc:"Play 3 different books", test:s=>s.books>=3},
+  {id:"ot", icon:"📜", name:"Old Testament Scholar", desc:"Play 5 Old Testament games", test:s=>s.ot>=5},
+  {id:"nt", icon:"✝️", name:"New Testament Scholar", desc:"Play 5 New Testament games", test:s=>s.nt>=5},
+  {id:"streak", icon:"🔥", name:"Faithful Three", desc:"Play on 3 days in a row", test:s=>s.streak>=3},
+  {id:"heart", icon:"💗", name:"Heart Keeper", desc:"Write 5 Heart reflections", test:s=>s.heart>=5},
+  {id:"hands", icon:"🤝", name:"Hands in Action", desc:"Complete 5 Hands missions", test:s=>s.hands>=5},
+  {id:"full", icon:"🏅", name:"Full Set", desc:"Try all 8 modules", test:s=>s.modules>=8}
+];
+const AVATARS = ["noah","moses","david","ruth","esther","joseph","daniel","deborah","peter","paul","jonah","elijah"];
+const AVATAR_NAMES = {noah:"Noah", moses:"Moses", david:"David", ruth:"Ruth", esther:"Esther", joseph:"Joseph",
+  daniel:"Daniel", deborah:"Deborah", peter:"Peter", paul:"Paul", jonah:"Jonah", elijah:"Elijah"};
+/* Symbolic avatars: each shows an object linked to the character, not a portrait */
+const AVATAR_ART = {
+  noah:`<circle cx="50" cy="50" r="50" fill="#3b6fb6"/><path d="M18 22 Q50 6 82 22" fill="none" stroke="#e0a24f" stroke-width="5" stroke-linecap="round"/><path d="M26 62 H74 L66 76 H34 Z" fill="#8b5a2b"/><rect x="42" y="44" width="16" height="18" fill="#f6f4ef"/><path d="M14 84 Q25 80 36 84 T58 84 T80 84 T96 84" fill="none" stroke="#9fd4ff" stroke-width="4"/>`,
+  moses:`<circle cx="50" cy="50" r="50" fill="#2e6b4f"/><rect x="30" y="28" width="18" height="30" rx="2" fill="#f6f4ef"/><rect x="52" y="28" width="18" height="30" rx="2" fill="#f6f4ef"/><line x1="36" y1="34" x2="42" y2="34" stroke="#2e6b4f" stroke-width="2"/><line x1="58" y1="34" x2="64" y2="34" stroke="#2e6b4f" stroke-width="2"/><line x1="20" y1="80" x2="80" y2="20" stroke="#e0a24f" stroke-width="5" stroke-linecap="round"/>`,
+  david:`<circle cx="50" cy="50" r="50" fill="#c8842b"/><path d="M34 30 Q18 52 34 74" fill="none" stroke="#f6f4ef" stroke-width="4"/><line x1="34" y1="30" x2="34" y2="74" stroke="#f6f4ef" stroke-width="2"/><line x1="44" y1="34" x2="44" y2="70" stroke="#f6f4ef" stroke-width="1.5"/><line x1="54" y1="36" x2="54" y2="68" stroke="#f6f4ef" stroke-width="1.5"/><line x1="64" y1="38" x2="64" y2="66" stroke="#f6f4ef" stroke-width="1.5"/><circle cx="72" cy="68" r="5" fill="#5a3b1c"/>`,
+  ruth:`<circle cx="50" cy="50" r="50" fill="#c0475b"/><line x1="50" y1="78" x2="50" y2="28" stroke="#e0a24f" stroke-width="4"/><ellipse cx="50" cy="26" rx="6" ry="10" fill="#e0a24f"/><ellipse cx="38" cy="38" rx="5" ry="9" fill="#e0a24f" transform="rotate(-20 38 38)"/><ellipse cx="62" cy="38" rx="5" ry="9" fill="#e0a24f" transform="rotate(20 62 38)"/><ellipse cx="34" cy="54" rx="5" ry="9" fill="#e0a24f" transform="rotate(-30 34 54)"/><ellipse cx="66" cy="54" rx="5" ry="9" fill="#e0a24f" transform="rotate(30 66 54)"/>`,
+  esther:`<circle cx="50" cy="50" r="50" fill="#7a4fb0"/><path d="M24 62 L24 36 L38 50 L50 30 L62 50 L76 36 L76 62 Z" fill="#e0a24f"/><circle cx="50" cy="30" r="3" fill="#f6f4ef"/><circle cx="24" cy="36" r="3" fill="#f6f4ef"/><circle cx="76" cy="36" r="3" fill="#f6f4ef"/><rect x="24" y="62" width="52" height="6" fill="#e0a24f"/>`,
+  joseph:`<circle cx="50" cy="50" r="50" fill="#e0a24f"/><path d="M34 26 H66 L72 80 H28 Z" fill="#c0475b"/><rect x="34" y="40" width="32" height="5" fill="#3b6fb6"/><rect x="34" y="54" width="32" height="5" fill="#2e8b57"/><rect x="34" y="68" width="32" height="5" fill="#f6f4ef"/><path d="M34 26 L50 36 L66 26" fill="none" stroke="#f6f4ef" stroke-width="3"/>`,
+  daniel:`<circle cx="50" cy="50" r="50" fill="#5a6b7a"/><circle cx="50" cy="46" r="28" fill="#c8842b"/><circle cx="50" cy="46" r="16" fill="#e0a24f"/><circle cx="43" cy="44" r="2.5" fill="#222"/><circle cx="57" cy="44" r="2.5" fill="#222"/><path d="M44 54 Q50 58 56 54" fill="none" stroke="#222" stroke-width="2"/><path d="M22 40 l-6 -4 M22 50 l-7 0 M22 60 l-6 4 M78 40 l6 -4 M78 50 l7 0 M78 60 l6 4" stroke="#c8842b" stroke-width="3"/>`,
+  deborah:`<circle cx="50" cy="50" r="50" fill="#2e8b57"/><rect x="47" y="40" width="6" height="40" fill="#8b5a2b"/><path d="M50 40 Q30 28 16 40 Q32 38 50 44 Z" fill="#c8f5d6"/><path d="M50 40 Q70 28 84 40 Q68 38 50 44 Z" fill="#c8f5d6"/><path d="M50 40 Q40 22 34 18 Q44 26 50 36 Z" fill="#c8f5d6"/><path d="M50 40 Q60 22 66 18 Q56 26 50 36 Z" fill="#c8f5d6"/>`,
+  peter:`<circle cx="50" cy="50" r="50" fill="#3b8fb0"/><path d="M18 58 Q34 40 52 58 Q68 40 84 58 Q68 66 52 62 Q34 66 18 58 Z" fill="#f6f4ef"/><circle cx="36" cy="54" r="2.5" fill="#222"/><path d="M60 54 l8 -6 l-2 6 l2 6 z" fill="#f6f4ef"/><path d="M24 30 L40 70 M34 26 L56 74 M46 24 L70 70 M58 26 L80 60" stroke="#c8f5ff" stroke-width="1.5" opacity=".7"/>`,
+  paul:`<circle cx="50" cy="50" r="50" fill="#8a5a9a"/><rect x="28" y="30" width="44" height="40" fill="#f6f4ef"/><ellipse cx="28" cy="50" rx="5" ry="20" fill="#e0d7c4"/><ellipse cx="72" cy="50" rx="5" ry="20" fill="#e0d7c4"/><line x1="36" y1="42" x2="64" y2="42" stroke="#8a5a9a" stroke-width="3"/><line x1="36" y1="52" x2="64" y2="52" stroke="#8a5a9a" stroke-width="3"/><line x1="36" y1="62" x2="56" y2="62" stroke="#8a5a9a" stroke-width="3"/>`,
+  jonah:`<circle cx="50" cy="50" r="50" fill="#1f7a8c"/><ellipse cx="46" cy="50" rx="28" ry="16" fill="#8fc7d4"/><path d="M72 50 L90 38 L90 62 Z" fill="#8fc7d4"/><circle cx="34" cy="46" r="3" fill="#222"/><path d="M30 60 Q36 64 42 60" fill="none" stroke="#222" stroke-width="2"/><path d="M14 80 Q25 74 36 80 T58 80 T80 80 T96 80" fill="none" stroke="#9fd4ff" stroke-width="4"/>`,
+  elijah:`<circle cx="50" cy="50" r="50" fill="#b5651d"/><path d="M50 74 Q36 60 42 48 Q46 56 48 44 Q56 54 58 42 Q68 56 60 74 Z" fill="#ffb347"/><path d="M50 74 Q44 64 48 56 Q52 64 56 60 Q58 68 50 74 Z" fill="#fff1c1"/><path d="M14 80 L86 80" stroke="#f6f4ef" stroke-width="3"/>`
+};
+function avatarHTML(key){
+  if(AVATAR_ART[key]) return `<svg class="av-svg" viewBox="0 0 100 100" role="img" aria-label="${AVATAR_NAMES[key]}">${AVATAR_ART[key]}</svg>`;
+  return escapeHtml(key || "");
+}
+
+function dayKey(d){ const x = new Date(d); return x.getFullYear()+"-"+(x.getMonth()+1)+"-"+x.getDate(); }
+function statsFor(pid){
+  const ss = DB.sessions.filter(s => s.pid === pid);
+  const days = new Set(ss.map(s => dayKey(s.date)));
+  let streak = 0, d = new Date();
+  if(!days.has(dayKey(d))) d = new Date(Date.now() - 86400000);
+  while(days.has(dayKey(d))){ streak++; d = new Date(d.getTime() - 86400000); }
+  return {
+    points: ss.reduce((a,s) => a + s.points, 0),
+    games: ss.length,
+    books: new Set(ss.map(s => s.book)).size,
+    modules: new Set(ss.map(s => s.module)).size,
+    ot: ss.filter(s => s.testament === "OT").length,
+    nt: ss.filter(s => s.testament === "NT").length,
+    heart: ss.filter(s => s.heart).length,
+    hands: ss.filter(s => s.hands).length,
+    streak, ss
+  };
+}
+function levelInfo(points){
+  let idx = 0;
+  LEVELS.forEach((l,i) => { if(points >= l.min) idx = i; });
+  const cur = LEVELS[idx], nxt = LEVELS[idx+1];
+  const pct = nxt ? Math.round((points - cur.min) / (nxt.min - cur.min) * 100) : 100;
+  return { cur, nxt, pct };
+}
+function earnedBadges(st){ return BADGES.filter(b => b.test(st)).map(b => b.id); }
+function activePlayer(){ return DB.players[DB.activeId] || null; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ============================================================
+   HEADER AND NAVIGATION
+   ============================================================ */
+function paintHeader(){
+  const p = activePlayer();
+  const who = document.getElementById("who");
+  const nav = document.getElementById("nav");
+  if(!p){ who.innerHTML = ""; nav.innerHTML = ""; return; }
+  const st = statsFor(p.id), li = levelInfo(st.points);
+  who.innerHTML = `<span class="avatar-chip">${avatarHTML(p.avatar)}</span><span>${escapeHtml(p.name)}</span><span>${li.cur.icon} ${li.cur.name}</span>`;
+  const items = [["home",T("home")],["play",T("play")],["progress",T("progress")],["board",T("board")],["profile",T("profile")],["logout",T("logout")]];
+  nav.innerHTML = items.map(([k,l]) => `<button class="${window.currentView===k?'on':''}" onclick="go('${k}')">${l}</button>`).join("");
+}
+window.currentView = "home";
+function go(view){
+  window.currentView = view;
+  if(view === "home") return showHome();
+  if(view === "play") return showPlay();
+  if(view === "progress") return showProgress();
+  if(view === "board") return showBoard();
+  if(view === "profile") return showProfile(false);
+  if(view === "logout") return logout();
+}
+
+/* ============================================================
+   PROFILE (first run, edit, switch player)
+   ============================================================ */
+let pendingAvatar = AVATARS[0];
+let pendingLang = "en";
+function showProfile(isNew){
+  const p = activePlayer();
+  const name = (!isNew && p) ? p.name : "";
+  pendingAvatar = (!isNew && p) ? p.avatar : AVATARS[0];
+  pendingLang = (!isNew && p) ? p.lang : "en";
+  const others = Object.values(DB.players).filter(x => !p || x.id !== p.id);
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${isNew ? T("welcome") : T("profile")}</span>
+      <h2>${isNew ? T("welcome") : T("profile")}</h2>
+      <p class="muted">${T("welcomeSub")}</p>
+      <label><strong>${T("name")}</strong></label>
+      <input type="text" id="pf-name" value="${escapeHtml(name)}" maxlength="24" placeholder="e.g. Grace Runner">
+      <p><strong>${T("avatar")}</strong></p>
+      <div class="avatars" id="pf-av">${AVATARS.map(a => `<div class="av-wrap"><button class="av ${a===pendingAvatar?'sel':''}" data-a="${a}" title="${AVATAR_NAMES[a]}">${avatarHTML(a)}</button><div class="av-name">${AVATAR_NAMES[a]}</div></div>`).join("")}</div>
+      <p><strong>${T("language")}</strong></p>
+      <select id="pf-lang" style="width:100%;font:inherit;padding:10px;border-radius:8px;border:1px solid rgba(127,127,127,.4);background:var(--bg);color:var(--ink)">${Object.entries(LANGS).map(([k,l]) => `<option value="${k}" ${k===pendingLang?'selected':''}>${l}</option>`).join("")}</select>
+      <div style="margin-top:12px"><button id="pf-save">${T("save")}</button>${!isNew && p ? `<button class="alt" onclick="go('home')">${T("back")}</button>` : ""}</div>
+    </div>
+    ${others.length ? `<div class="card"><h3>${isNew ? T("signIn") : T("switchPlayer")}</h3><div class="avatars">${others.map(o => `<div class="av-wrap"><button class="av" data-sw="${o.id}" title="${escapeHtml(o.name)}">${avatarHTML(o.avatar)}</button><div class="av-name">${escapeHtml(o.name)}</div></div>`).join("")}</div></div>` : ""}`;
+  document.querySelectorAll("#pf-av .av").forEach(b => b.onclick = ()=>{
+    pendingAvatar = b.dataset.a;
+    document.querySelectorAll("#pf-av .av").forEach(x => x.classList.toggle("sel", x === b));
+  });
+  document.getElementById("pf-lang").onchange = e => { pendingLang = e.target.value; };
+  document.getElementById("pf-save").onclick = saveProfile;
+  document.querySelectorAll("[data-sw]").forEach(b => b.onclick = ()=>{ DB.activeId = b.dataset.sw; saveDB(); toast("OK"); go("home"); });
+  paintHeader();
+}
+function logout(){
+  DB.activeId = null;
+  saveDB();
+  window.currentView = "profile";
+  showProfile(true);
+  toast("Signed out");
+}
+function keepName(){ const n = document.getElementById("pf-name"); if(n) n.dataset.keep = n.value; }
+function saveProfile(){
+  const name = (document.getElementById("pf-name").value || "").trim();
+  if(!name){ toast("Please enter your name"); return; }
+  const existing = activePlayer();
+  const id = (existing && existing.name === name) ? existing.id : "p" + Date.now();
+  DB.players[id] = { id, name, avatar: pendingAvatar, lang: pendingLang, created: (DB.players[id] && DB.players[id].created) || new Date().toISOString() };
+  DB.activeId = id;
+  saveDB();
+  toast("Welcome, " + name + "!");
+  go("home");
+}
+document.addEventListener("input", e => { if(e.target && e.target.id === "pf-name") e.target.dataset.keep = e.target.value; });
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function showHome(){
+  const p = activePlayer();
+  if(!p) return showProfile(true);
+  const st = statsFor(p.id), li = levelInfo(st.points);
+  const earned = earnedBadges(st);
+  const nextTxt = li.nxt ? `${T("nextLevel")}: ${li.nxt.icon} ${li.nxt.name} (${li.nxt.min - st.points} ${T("points")})` : T("topLevel");
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${T("home")}</span>
+      <h2>${avatarHTML(p.avatar)} ${escapeHtml(p.name)}</h2>
+      <p><strong>${li.cur.icon} ${li.cur.name}</strong> - <span class="score">${st.points}</span> ${T("points")}</p>
+      <div class="xp"><div style="width:${li.pct}%"></div></div>
+      <p class="muted">${nextTxt}</p>
+      <div class="stats">
+        <div class="stat"><b>${st.games}</b>${T("games")}</div>
+        <div class="stat"><b>${st.streak}</b>${T("streak")}</div>
+        <div class="stat"><b>${earned.length}/${BADGES.length}</b>${T("badges")}</div>
+      </div>
+      <p class="muted">🔥 ${T("dailyGoal")}</p>
+      <button onclick="go('play')">${T("play")}</button>
+      <button class="alt" onclick="go('progress')">${T("progress")}</button>
+      <button class="alt" onclick="go('board')">${T("board")}</button>
+    </div>`;
+  paintHeader();
+}
+
+/* ============================================================
+   PLAY: module, then testament, then book
+   ============================================================ */
+function showPlay(){
+  document.getElementById("stage").innerHTML = `
+    <div class="card"><span class="badge b-game">${T("play")}</span><h2>Choose a game</h2>
+      <p class="muted">Pick a module first, then the Bible book you want to play from.</p></div>
+    ${MODULES.map((m,i) => `
+      <div class="card">
+        <div class="icon">${ICONS[i]}</div>
+        <span class="badge ${m.cls}">${m.badge}</span>
+        <h3>${m.title}</h3>
+        <p class="muted">${m.desc}</p>
+        <button onclick="pickBook(${i})">${m.noBook ? "Start" : T("chooseBook")}</button>
+      </div>`).join("")}`;
+  paintHeader();
+}
+let pickingModule = 0, pickingTest = "OT";
+function pickBook(i){
+  if(MODULES[i].noBook){ pickingModule = i; return startModule("Genesis"); }
+  pickingModule = i;
+  renderBookPicker();
+}
+function renderBookPicker(){
+  const list = pickingTest === "OT" ? OT_BOOKS : NT_BOOKS;
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${MODULES[pickingModule].title}</span>
+      <h2>${T("chooseBook")}</h2>
+      <div><button class="${pickingTest==='OT'?'':'alt'}" onclick="setTest('OT')">${T("ot")}</button>
+           <button class="${pickingTest==='NT'?'':'alt'}" onclick="setTest('NT')">${T("nt")}</button></div>
+      <div class="grid" style="margin-top:10px">${list.map(b => `<button class="tile" onclick="startModule('${b.replace(/'/g,"\\'")}')">${b}</button>`).join("")}</div>
+      <div style="margin-top:12px"><button class="alt" onclick="go('play')">${T("back")}</button></div>
+    </div>`;
+  paintHeader();
+}
+function setTest(t){ pickingTest = t; renderBookPicker(); }
+function startModule(book){
+  ctx = { book, testament: TEST(book) };
+  quizIdx = 0;
+  window.currentView = "play";
+  MODULES[pickingModule].run();
+  paintHeader();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* Records a finished module and shows the reward screen */
+function finishModule(name, head, max, hh){
+  const p = activePlayer();
+  const before = earnedBadges(statsFor(p.id));
+  const heart = !!(hh && hh.heart);
+  const hands = !!(hh && hh.hands);
+  const points = ATTEND_POINTS + head + (heart ? HEART_POINTS : 0) + (hands ? HANDS_POINTS : 0);
+  DB.sessions.push({
+    id: "s" + Date.now(), pid: p.id, date: new Date().toISOString(),
+    module: name, book: ctx.book, testament: ctx.testament,
+    lang: p.lang, head, max, heart, hands, points
+  });
+  saveDB();
+  const st = statsFor(p.id), li = levelInfo(st.points);
+  const newBadges = BADGES.filter(b => !before.includes(b.id) && b.test(st));
+  newBadges.forEach(b => setTimeout(()=>toast(`${b.icon} ${T("unlocked")}: ${b.name}`), 300));
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${name}</span>
+      <h2>${T("finish")}</h2>
+      <p><strong>${T("earned")}: <span class="score">+${points}</span></strong></p>
+      <div class="feedback">Attendance +${ATTEND_POINTS} | Head ${head} of ${max} | Heart ${heart ? "+"+HEART_POINTS : "0"} | Hands ${hands ? "+"+HANDS_POINTS : "0"}</div>
+      <p>${li.cur.icon} ${li.cur.name} - ${st.points} ${T("points")}</p>
+      <div class="xp"><div style="width:${li.pct}%"></div></div>
+      ${newBadges.length ? `<p><strong>${T("unlocked")}</strong></p><div class="badges">${newBadges.map(b=>`<div class="bt"><div class="ico">${b.icon}</div>${b.name}</div>`).join("")}</div>` : ""}
+      <div style="margin-top:12px">
+        <button onclick="startModule('${ctx.book.replace(/'/g,"\\'")}')">${T("playAgain")}</button>
+        <button class="alt" onclick="go('progress')">${T("progress")}</button>
+        <button class="alt" onclick="go('home')">${T("home")}</button>
+      </div>
+    </div>`;
+  paintHeader();
+}
+
+/* ============================================================
+   PROGRESS AND LEADERBOARD
+   ============================================================ */
+function showProgress(){
+  const p = activePlayer();
+  const st = statsFor(p.id), li = levelInfo(st.points);
+  const earned = earnedBadges(st);
+  const history = [...st.ss].reverse().slice(0, 50);
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${T("progress")}</span>
+      <h2>${avatarHTML(p.avatar)} ${escapeHtml(p.name)}</h2>
+      <p>${li.cur.icon} <strong>${li.cur.name}</strong> - <span class="score">${st.points}</span> ${T("points")}</p>
+      <div class="xp"><div style="width:${li.pct}%"></div></div>
+      <div class="stats">
+        <div class="stat"><b>${st.games}</b>${T("games")}</div>
+        <div class="stat"><b>${st.books}</b>Books</div>
+        <div class="stat"><b>${st.modules}/8</b>Modules</div>
+        <div class="stat"><b>${st.streak}</b>${T("streak")}</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>${T("badges")} (${earned.length}/${BADGES.length})</h3>
+      <div class="badges">${BADGES.map(b => `<div class="bt ${earned.includes(b.id)?'':'locked'}"><div class="ico">${b.icon}</div><strong>${b.name}</strong><div class="muted">${b.desc}</div></div>`).join("")}</div>
+    </div>
+    <div class="card">
+      <h3>${T("history")}</h3>
+      ${history.length ? `<table><thead><tr><th>Date</th><th>Game</th><th>Book</th><th>${T("points")}</th></tr></thead><tbody>
+        ${history.map(s => `<tr><td>${new Date(s.date).toLocaleDateString()}</td><td>${s.module}</td><td>${s.book}</td><td><span class="score">+${s.points}</span></td></tr>`).join("")}
+      </tbody></table>` : `<p class="muted">${T("noHistory")}</p>`}
+      <div style="margin-top:10px"><button class="alt" onclick="clearHistory()">${T("clearHistory")}</button></div>
+    </div>`;
+  paintHeader();
+}
+function clearHistory(){
+  const p = activePlayer();
+  if(!confirm("Clear your game history? Your name and avatar stay.")) return;
+  DB.sessions = DB.sessions.filter(s => s.pid !== p.id);
+  saveDB(); toast("History cleared"); showProgress();
+}
+function showBoard(){
+  const rows = Object.values(DB.players).map(p => {
+    const st = statsFor(p.id);
+    return { p, points: st.points, games: st.games, level: levelInfo(st.points).cur };
+  }).sort((a,b) => b.points - a.points);
+  const me = DB.activeId;
+  const myRank = rows.findIndex(r => r.p.id === me) + 1;
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${T("board")}</span>
+      <h2>${T("rank")} ${myRank || "-"}</h2>
+      <p class="muted">${T("boardNote")}</p>
+      ${rows.length ? `<table><thead><tr><th>${T("rank")}</th><th>Player</th><th>${T("level")}</th><th>${T("games")}</th><th>${T("points")}</th></tr></thead><tbody>
+        ${rows.map((r,i) => `<tr style="${r.p.id===me?'font-weight:700;color:var(--accent)':''}"><td>${i+1}</td><td>${avatarHTML(r.p.avatar)} ${escapeHtml(r.p.name)}</td><td>${r.level.icon} ${r.level.name}</td><td>${r.games}</td><td>${r.points}</td></tr>`).join("")}
+      </tbody></table>` : `<p class="muted">${T("noHistory")}</p>`}
+    </div>`;
+  paintHeader();
+}
+
+/* ============================================================
+   QUESTION RUNNER (multiple choice, used by several modules)
+   ============================================================ */
+function runQuestions(qs, onFinish, i=0, score=0){
+  if(i >= qs.length) return onFinish(score, qs.length);
+  const q = qs[i];
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <p class="muted">Question ${i+1} of ${qs.length}</p>
+      <h3>${q.q}</h3>
+      <div id="opts"></div>
+      <div id="fb"></div>
+    </div>`;
+  const opts = document.getElementById("opts");
+  const btns = q.options.map((o,k) => {
+    const b = document.createElement("button");
+    b.className = "opt"; b.textContent = o;
+    b.onclick = () => {
+      btns.forEach(x => x.disabled = true);
+      const ok = k === q.correct;
+      b.classList.add(ok ? "correct" : "wrong");
+      if(!ok) btns[q.correct].classList.add("correct");
+      document.getElementById("fb").innerHTML = `
+        <div class="feedback">${ok ? "Correct." : "Not quite - the answer is highlighted."} ${q.note || ""}</div>
+        <button id="nextq">${i+1 < qs.length ? "Next question" : "See result"}</button>`;
+      document.getElementById("nextq").onclick = () => runQuestions(qs, onFinish, i+1, score + (ok ? 1 : 0));
+    };
+    opts.appendChild(b); return b;
+  });
+}
+
+/* Heart and Hands card, reused after each Head activity */
+function hhCard(prompt, mission){
+  return `
+    <div class="card">
+      <span class="badge b-heart">Heart - reflect</span>
+      <p>${prompt}</p>
+      <textarea id="heart" rows="3" placeholder="A short reflection (shared only with your group or mentor)"></textarea>
+    </div>
+    <div class="card">
+      <span class="badge b-hands">Hands - act</span>
+      <p>${mission}</p>
+      <label><input type="checkbox" id="done"> I have done this / I will do this</label>
+    </div>
+    <button id="cont">${T("finish")}</button>`;
+}
+function readHH(){
+  const h = document.getElementById("heart"), d = document.getElementById("done");
+  return { heart: h ? h.value.trim() : "", hands: d ? d.checked : false };
+}
+function withHH(name, head, max, prompt, mission){
+  document.getElementById("stage").innerHTML = hhCard(prompt, mission);
+  document.getElementById("cont").onclick = () => finishModule(name, head, max, readHH());
+  paintHeader();
+}
+
+/* ============================================================
+   MODULE 1: ECHO
+   ============================================================ */
+function runEcho(){
+  const item = pool(ECHO, 1)[0];
+  const picked = [item];
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-head">Head - Echo</span>
+      <h2>Listen and retell</h2>
+      ${notice(picked)}
+      <p class="muted">Passage: ${item.ref} (${item.title})</p>
+      ${CONFIG.echoAudio ? `<audio controls preload="none" src="${CONFIG.echoAudio}" style="width:100%"></audio>` : `<p class="muted">[Audio placeholder - add a Bible Brain link in CONFIG]</p>`}
+      <p>Retell the passage in your own words, as you would tell a friend.</p>
+      <textarea id="ans" rows="6"></textarea>
+      <div style="margin-top:8px"><button id="check">Check my retelling</button></div>
+      <div id="res"></div>
+    </div>`;
+  document.getElementById("check").onclick = () => {
+    const txt = document.getElementById("ans").value.toLowerCase();
+    if(!txt.trim()) return;
+    const found = item.elements.filter(e => e.keys.some(k => txt.includes(k)));
+    const missed = item.elements.filter(e => !found.includes(e));
+    document.getElementById("res").innerHTML = `
+      <div class="feedback"><span class="score">${found.length} of ${item.elements.length}</span><br>
+      ${missed.length ? "To revisit: " + missed.map(m => m.label.toLowerCase()).join("; ") + "." : "Every key element was retold."}</div>
+      <button id="echo-next">Continue to Heart and Hands</button>`;
+    document.getElementById("echo-next").onclick = () =>
+      withHH("Echo", found.length, item.elements.length, item.heart, item.mission);
+  };
+}
+
+/* ============================================================
+   MODULE 2: SCENE DETECTIVE
+   ============================================================ */
+function runScene(){
+  const item = SCENE[Math.floor(Math.random() * SCENE.length)];
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-head">Head - Scene Detective</span>
+      <h2>${item.title}</h2>
+      ${notice([item])}
+      <p class="muted">Scene: ${item.ref}</p>
+      ${CONFIG.sceneVideo ? `<video controls src="${CONFIG.sceneVideo}" style="width:100%"></video>` : `<p class="muted">[Gospel Film clip placeholder - add a link in CONFIG]</p>`}
+      <p>Watch carefully, then answer three observation questions.</p>
+      <button id="start-scene">Start questions</button>
+    </div>`;
+  document.getElementById("start-scene").onclick = () =>
+    runQuestions(item.questions, (score, max) => withHH("Scene Detective", score, max, item.heart, item.mission));
+}
+
+/* ============================================================
+   MODULE 3: COVENANT QUEST
+   ============================================================ */
+function runCovenant(){
+  const nodes = COVENANT;
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Covenant Quest</span>
+      <h2>Journey through the covenant stories</h2>
+      <p class="muted">${COVENANT_NOTE}</p>
+      ${CONFIG.covenantAudio ? `<audio controls preload="none" src="${CONFIG.covenantAudio}" style="width:100%"></audio>` : `<p class="muted">[Covenant audio placeholder]</p>`}
+      <p>The stories below follow The Covenant film. Each has a recall check, a Heart moment and a Hands mission.</p><ol>${COVENANT.map(n => `<li>${n.title} <span class="muted">(${n.ref})</span></li>`).join("")}</ol>
+      <button id="start-cq">Begin</button>
+    </div>`;
+  document.getElementById("start-cq").onclick = () => covNode(nodes, 0, { score:0, max:0, heart:[], hands:false });
+}
+function covNode(nodes, i, acc){
+  if(i >= nodes.length){
+    return finishModule("Covenant Quest", acc.score, acc.max, { heart: acc.heart.filter(Boolean).join(" | "), hands: acc.hands });
+  }
+  const n = nodes[i];
+  runQuestions([{ q: `${n.title} (${n.ref}): ${n.q}`, options: n.options, correct: n.correct, note: n.note }], score => {
+    document.getElementById("stage").innerHTML = `<div class="card"><span class="badge b-game">Node ${i+1} of ${nodes.length}</span><h3>${n.title}</h3><p class="muted">${n.ref}</p></div>` + hhCard(n.heart, n.mission);
+    document.getElementById("cont").onclick = () => {
+      const r = readHH();
+      acc.score += score; acc.max += 1;
+      acc.heart.push(r.heart); acc.hands = acc.hands || r.hands;
+      covNode(nodes, i+1, acc);
+    };
+  });
+}
+
+/* ============================================================
+   MODULE 4: WHO SAID IT
+   ============================================================ */
+function runWhoSaid(){
+  const items = pool(WHO_SAID, 4);
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Who Said It</span>
+      <h2>Name the speaker</h2>
+      ${notice(items)}
+      <p>${items.length} quotations from Scripture. Identify who spoke each one.</p>
+      <button id="start-w">Begin</button>
+    </div>`;
+  document.getElementById("start-w").onclick = () => {
+    const qs = items.map(x => ({ q: `Who said: "${x.quote}"?`, options: x.options, correct: x.correct, note: x.note }));
+    runQuestions(qs, (score, max) => withHH("Who Said It", score, max,
+      "If you had been in one of these scenes, what would you have said or done?",
+      "Speak one honest prayer aloud with a friend or family member this week."));
+  };
+}
+
+/* ============================================================
+   MODULE 5: STORY BUILDER
+   ============================================================ */
+let sbCards = [], sbOrder = [];
+function runStory(){
+  const item = pool(STORY, 1)[0];
+  sbCards = item.cards;
+  sbOrder = sbCards.map((_, i) => (i + 2) % sbCards.length);
+  renderStory(item);
+}
+function renderStory(item){
+  const rows = sbOrder.map((c,pos) => `
+    <div class="order-row">
+      <span>${sbCards[c]}</span>
+      <button class="alt" onclick="sbMove(${pos},-1)" ${pos===0?'disabled':''}>Up</button>
+      <button class="alt" onclick="sbMove(${pos},1)" ${pos===sbOrder.length-1?'disabled':''}>Down</button>
+    </div>`).join("");
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Story Builder</span>
+      <h2>${item.title} (${item.ref})</h2>
+      ${notice([item])}
+      <p class="muted">Put the story cards in order.</p>
+      ${rows}
+      <button id="sb-check">Check order</button>
+      <div id="sb-res"></div>
+    </div>`;
+  document.getElementById("sb-check").onclick = () => {
+    const correctPos = sbOrder.filter((c,pos) => c === pos).length;
+    document.getElementById("sb-res").innerHTML = `
+      <div class="feedback"><span class="score">${correctPos} of ${sbCards.length} in place</span><br>
+      ${correctPos === sbCards.length ? "Perfect order." : "Some cards are out of place. Try again or continue."}</div>
+      <button id="sb-next">Continue to Heart and Hands</button>`;
+    document.getElementById("sb-next").onclick = () => withHH("Story Builder", correctPos, sbCards.length, item.heart, item.mission);
+  };
+}
+window.sbMove = (pos, dir) => {
+  const t = pos + dir;
+  if(t < 0 || t >= sbOrder.length) return;
+  [sbOrder[pos], sbOrder[t]] = [sbOrder[t], sbOrder[pos]];
+  renderStory(pool(STORY,1)[0]);
+};
+
+/* ============================================================
+   MODULE 6: MEMORY VERSE
+   ============================================================ */
+function runMemory(){
+  const item = pool(MEMORY, 1)[0];
+  const html = item.template.replace(/\[\[(.+?)\]\]/g, (_, w) => `<input class="blank" data-a="${w}">`);
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-head">Head - Memory Verse</span>
+      <h2>${item.ref} (KJV)</h2>
+      ${notice([item])}
+      <p class="muted">Fill in the missing words from memory. Each blank is one word.</p>
+      <div class="verse">${html}</div>
+      <div style="margin-top:8px"><button id="mv-check">Check my answers</button></div>
+      <div id="mv-res"></div>
+    </div>`;
+  document.getElementById("mv-check").onclick = () => {
+    const inputs = [...document.querySelectorAll("input[data-a]")];
+    let score = 0;
+    inputs.forEach(i => {
+      const ok = i.value.trim().toLowerCase() === i.dataset.a.toLowerCase();
+      if(ok) score++;
+      i.style.color = ok ? "#2e8b57" : "#c0475b";
+      if(!ok) i.title = "Expected: " + i.dataset.a;
+    });
+    document.getElementById("mv-res").innerHTML = `
+      <div class="feedback"><span class="score">${score} of ${inputs.length}</span><br>
+      ${score === inputs.length ? "You remembered the whole verse." : "Words in red are incorrect. Hover over them to see the answer."}</div>
+      <button id="mv-next">Continue to Heart and Hands</button>`;
+    document.getElementById("mv-next").onclick = () => withHH("Memory Verse", score, inputs.length,
+      "Which word in this verse speaks to you most today, and why?",
+      "Say this verse aloud to one person this week and invite them to share a thought about it.");
+  };
+}
+
+/* ============================================================
+   MODULE 7: ORAL BIBLE QUIZ (PYPA structure)
+   9 quick questions (1 point, 30 seconds), one Who am I? round
+   (5 to 1 points), one listening round (1 point per answer).
+   ============================================================ */
+function runOralQuiz(){
+  const quick = pool(QUICK, 9);
+  const who = pool(WHO_AM_I, 1)[0];
+  const listen = pool(LISTENING, 1)[0];
+  quizRounds = [
+    ...quick.map(x => Object.assign({type:"quick"}, x)),
+    Object.assign({type:"who"}, who),
+    Object.assign({type:"audio"}, listen)
+  ];
+  const p = activePlayer();
+  quizIdx = 0;
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Oral Bible Quiz</span>
+      <h2>Set up your quiz</h2>
+      ${notice([...quick, who, listen])}
+      <p>Enter team or player names, separated by commas. The quiz has ${quizRounds.length} rounds.</p>
+      <input type="text" id="qt-names" value="${escapeHtml(p.name)}">
+      <div style="margin-top:10px"><button id="qt-start">Start quiz</button></div>
+    </div>`;
+  document.getElementById("qt-start").onclick = () => {
+    let names = document.getElementById("qt-names").value.split(",").map(s => s.trim()).filter(Boolean);
+    if(!names.length) names = [p.name];
+    quizTeams = [...new Set(names)];
+    quizScores = {};
+    quizTeams.forEach(t => quizScores[t] = 0);
+    quizRound();
+  };
+}
+function scoreboard(){
+  return `<div class="feedback">${quizTeams.map(t => `<span class="badge b-game" style="margin:2px 6px 2px 0">${escapeHtml(t)}: ${quizScores[t]}</span>`).join("")}</div>`;
+}
+function awardButtons(pts){
+  return quizTeams.map(t => `<button class="qt-award" data-t="${escapeHtml(t)}">${escapeHtml(t)} +${pts}</button>`).join("")
+       + `<button id="qt-none" class="alt">No one</button>`;
+}
+function wireAwards(pts){
+  document.querySelectorAll(".qt-award").forEach(b => b.onclick = () => {
+    quizScores[b.dataset.t] += pts; quizIdx++; quizRound();
+  });
+  document.getElementById("qt-none").onclick = () => { quizIdx++; quizRound(); };
+}
+function quizRound(){
+  clearInterval(quizTimer);
+  if(quizIdx >= quizRounds.length) return quizFinale();
+  const R = quizRounds[quizIdx];
+  const label = `Round ${quizIdx+1} of ${quizRounds.length}`;
+  if(R.type === "quick") return quickRound(R, label);
+  if(R.type === "who") return whoRound(R, label);
+  return audioRound(R, label);
+}
+function quickRound(R, label){
+  let left = 30;
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${label} - Quick question</span>
+      <h3>${R.q}</h3>
+      <div class="feedback">Time left: <span class="score" id="qt-time">30</span> seconds</div>
+      <ol style="padding-left:20px">${R.options.map(o => `<li>${escapeHtml(o)}</li>`).join("")}</ol>
+      <button id="qt-reveal">Reveal answer</button>
+      <div id="qt-fb"></div>
+      ${scoreboard()}
+    </div>`;
+  quizTimer = setInterval(() => {
+    const t = document.getElementById("qt-time");
+    if(!t){ clearInterval(quizTimer); return; }
+    left--;
+    t.textContent = left > 0 ? left : "Time up";
+    if(left <= 0) clearInterval(quizTimer);
+  }, 1000);
+  document.getElementById("qt-reveal").onclick = () => {
+    clearInterval(quizTimer);
+    document.getElementById("qt-reveal").remove();
+    document.getElementById("qt-fb").innerHTML = `
+      <div class="feedback"><strong>Answer:</strong> ${R.options[R.correct]}<br>
+      <span class="muted">Reference: ${R.ref}</span><br>${R.info}<br>
+      <em>Heart: ${R.heart}</em></div>${awardButtons(1)}`;
+    wireAwards(1);
+  };
+}
+function whoRound(R, label){
+  let shown = 0;
+  const draw = () => {
+    const list = R.clues.slice(0, shown).map(c => `<li>${escapeHtml(c)}</li>`).join("");
+    document.getElementById("stage").innerHTML = `
+      <div class="card">
+        <span class="badge b-game">${label} - Who am I?</span>
+        <p class="muted">Clues are revealed one at a time. The earlier the answer, the more points.</p>
+        <ol style="padding-left:20px">${list}</ol>
+        <p class="muted">${shown > 0 ? "Points if answered now: " + (6 - shown) : ""}</p>
+        ${shown < R.clues.length ? '<button id="qt-clue">Reveal next clue</button>' : '<button id="qt-reveal">Reveal answer</button>'}
+        <div id="qt-fb"></div>
+        ${scoreboard()}
+      </div>`;
+    if(shown < R.clues.length){
+      document.getElementById("qt-clue").onclick = () => { shown++; draw(); };
+    } else {
+      document.getElementById("qt-reveal").onclick = () => {
+        const pts = 6 - shown;
+        document.getElementById("qt-reveal").remove();
+        document.getElementById("qt-fb").innerHTML = `
+          <div class="feedback"><strong>Answer:</strong> ${R.answer} (${R.ref})<br>${R.info}<br><em>Heart: ${R.heart}</em></div>
+          ${awardButtons(pts)}`;
+        wireAwards(pts);
+      };
+    }
+  };
+  draw();
+}
+function audioRound(R, label){
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">${label} - Listening round</span>
+      <h3>${R.title}</h3>
+      ${CONFIG.quizAudio ? `<audio controls preload="none" src="${CONFIG.quizAudio}" style="width:100%"></audio>` : `<p class="muted">[Listening audio placeholder - add a link in CONFIG]</p>`}
+      <p>Listen carefully, then answer five questions. Each correct answer is worth one point.</p>
+      <button id="qt-go">Start the questions</button>
+    </div>`;
+  document.getElementById("qt-go").onclick = () => {
+    runQuestions(R.questions, (score, max) => {
+      document.getElementById("stage").innerHTML = `
+        <div class="card">
+          <span class="badge b-game">${label} - Listening round</span>
+          <div class="feedback"><span class="score">${score} of ${max} correct</span></div>
+          <p class="muted">Award the points to the team or player who answered.</p>
+          ${awardButtons(score)}
+          ${scoreboard()}
+        </div>`;
+      wireAwards(score);
+    });
+  };
+}
+function quizFinale(){
+  const ranking = [...quizTeams].sort((a,b) => quizScores[b] - quizScores[a]);
+  const p = activePlayer();
+  const mine = quizScores[p.name] !== undefined ? quizScores[p.name] : quizScores[ranking[0]];
+  const maxTotal = quizRounds.filter(r => r.type === "quick").length + 5 + (quizRounds.find(r => r.type === "audio") || {questions:[]}).questions.length;
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Oral Bible Quiz - Final ranking</span>
+      <h2>Well done</h2>
+      <ol style="padding-left:20px">${ranking.map(t => `<li>${escapeHtml(t)}: <span class="score">${quizScores[t]}</span> points</li>`).join("")}</ol>
+      <div class="feedback">"Thy word is a lamp unto my feet, and a light unto my path." (Psalm 119:105)</div>
+      <p><span class="badge b-heart">Heart</span> What is one truth from today's quiz that you want to remember?</p>
+      <textarea id="heart" rows="3" placeholder="A short reflection (shared only with your group or mentor)"></textarea>
+      <p><span class="badge b-hands">Hands</span> Teach one fact from today's quiz to someone this week, or read a chapter aloud with a friend.</p>
+      <label><input type="checkbox" id="done"> I will do this / I have done this</label>
+      <div style="margin-top:10px"><button id="qt-finish">${T("finish")}</button></div>
+    </div>`;
+  document.getElementById("qt-finish").onclick = () => finishModule("Oral Bible Quiz", mine, maxTotal, readHH());
+}
+
+/* ============================================================
+   MODULE LIST
+   ============================================================ */
+const ICONS = [
+  `<svg viewBox="0 0 120 80" role="img" aria-label="Sound waves and a speech bubble"><rect x="10" y="18" width="44" height="30" rx="8" fill="#3b6fb6"/><path d="M22 48 l-4 10 l12 -10z" fill="#3b6fb6"/><path d="M66 22 q8 18 0 36" fill="none" stroke="#2e6b4f" stroke-width="4" stroke-linecap="round"/><path d="M78 14 q14 26 0 52" fill="none" stroke="#2e6b4f" stroke-width="4" stroke-linecap="round" opacity=".7"/><path d="M92 6 q20 34 0 68" fill="none" stroke="#2e6b4f" stroke-width="4" stroke-linecap="round" opacity=".45"/></svg>`,
+  `<svg viewBox="0 0 120 80" role="img" aria-label="Film frame with a magnifying glass"><rect x="6" y="14" width="72" height="50" rx="6" fill="#c8842b"/><rect x="16" y="24" width="52" height="30" rx="3" fill="#f6f4ef"/><circle cx="94" cy="38" r="14" fill="none" stroke="#c0475b" stroke-width="5"/><line x1="104" y1="48" x2="116" y2="66" stroke="#c0475b" stroke-width="6" stroke-linecap="round"/></svg>`,
+  `<svg viewBox="0 0 120 80" role="img" aria-label="A winding path with three story stops"><path d="M12 62 Q40 8 60 40 T108 18" fill="none" stroke="#c8842b" stroke-width="4" stroke-dasharray="6 6"/><circle cx="12" cy="62" r="9" fill="#2e6b4f"/><circle cx="60" cy="40" r="9" fill="#2e6b4f"/><circle cx="108" cy="18" r="9" fill="#2e6b4f"/></svg>`,
+  `<svg viewBox="0 0 120 80" role="img" aria-label="Two speech bubbles, one with a question mark"><rect x="6" y="10" width="54" height="34" rx="8" fill="#3b6fb6"/><path d="M16 44 l-2 12 l14 -12z" fill="#3b6fb6"/><text x="33" y="36" font-size="22" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#fff">?</text><rect x="60" y="34" width="54" height="34" rx="8" fill="#c0475b"/><path d="M104 68 l4 8 l-14 -8z" fill="#c0475b"/><text x="87" y="57" font-size="20" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#fff">...</text></svg>`,
+  `<svg viewBox="0 0 120 80" role="img" aria-label="Three stacked story cards numbered one to three"><rect x="10" y="8" width="56" height="20" rx="4" fill="#2e8b57"/><circle cx="22" cy="18" r="6" fill="#fff"/><rect x="30" y="30" width="56" height="20" rx="4" fill="#3b6fb6"/><circle cx="42" cy="40" r="6" fill="#fff"/><rect x="50" y="52" width="56" height="20" rx="4" fill="#c8842b"/><circle cx="62" cy="62" r="6" fill="#fff"/></svg>`,
+  `<svg viewBox="0 0 120 80" role="img" aria-label="An open book with a blank to fill in"><path d="M60 22 Q40 12 10 16 V64 Q40 60 60 70 Z" fill="#2e6b4f"/><path d="M60 22 Q80 12 110 16 V64 Q80 60 60 70 Z" fill="#3b8f6a"/><line x1="20" y1="30" x2="46" y2="30" stroke="#fff" stroke-width="3" opacity=".8"/><line x1="20" y1="40" x2="46" y2="40" stroke="#fff" stroke-width="3" opacity=".8"/><rect x="72" y="36" width="26" height="4" fill="#e0a24f"/><line x1="74" y1="28" x2="96" y2="28" stroke="#fff" stroke-width="3" opacity=".8"/></svg>`,
+  `<svg viewBox="0 0 120 80" role="img" aria-label="A quiz card with a question mark"><rect x="14" y="6" width="92" height="68" rx="10" fill="#c8842b"/><text x="60" y="50" font-size="34" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#fff">?</text><circle cx="30" cy="62" r="4" fill="#fff"/><circle cx="90" cy="62" r="4" fill="#fff"/></svg>`
+];
+ICONS.push(`<svg viewBox="0 0 120 80" role="img" aria-label="Three figures with a question mark"><circle cx="34" cy="30" r="12" fill="#3b6fb6"/><path d="M14 70 Q34 44 54 70 Z" fill="#3b6fb6"/><circle cx="86" cy="30" r="12" fill="#c0475b"/><path d="M66 70 Q86 44 106 70 Z" fill="#c0475b"/><text x="60" y="36" font-size="22" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#c8842b">?</text></svg>`);
+const MODULES = [
+  {title:"Echo", badge:"Head - Echo", cls:"b-head", desc:"Listen to a passage and retell it in your own words.", run:runEcho},
+  {title:"Scene Detective", badge:"Head - Observation", cls:"b-head", desc:"Watch a scene and answer questions about what you observed.", run:runScene},
+  {title:"Covenant Quest", badge:"Journey", cls:"b-game", desc:"Journey through the stories of The Covenant film, from Eden to the Tabernacle.", run:runCovenant, noBook:true},
+  {title:"Who Said It", badge:"Game", cls:"b-game", desc:"Identify the speaker of well-known quotations.", run:runWhoSaid},
+  {title:"Story Builder", badge:"Game - for children", cls:"b-game", desc:"Put the cards of a Bible story into the right order.", run:runStory},
+  {title:"Memory Verse", badge:"Head - Memory", cls:"b-head", desc:"Fill in the missing words of a memory verse.", run:runMemory},
+  {title:"Bible Trivia", badge:"Game", cls:"b-game", desc:"Fun facts and trivia from the Bible: 10 random questions, 3 lives and two lifelines.", run:runBibleQuiz},
+  {title:"Bible Characters", badge:"Game", cls:"b-game", desc:"Guess the Bible character from clues. The fewer clues you use, the more points you earn.", run:runCharacters}
+];
+
+/* ============================================================
+   START
+   ============================================================ */
+/* ===== BIBLE QUIZ: 10 random multiple-choice questions, 3 lives, lifelines (50:50 and Hint) ===== */
+const QUIZ_EXTRA = [
+  {book:"Genesis", q:"What was the name of the garden where Adam and Eve lived?", options:["Eden","Gilead","Gath","Bethel"], correct:0, ref:"Genesis 2:8", info:"God planted a garden in Eden, in the east."},
+  {book:"Genesis", q:"Which son was Jacob's favourite?", options:["Reuben","Joseph","Judah","Benjamin"], correct:1, ref:"Genesis 37:3", info:"Jacob loved Joseph more than his other sons and gave him a special coat."},
+  {book:"Exodus", q:"What did God give Moses on Mount Sinai?", options:["The Ten Commandments","A new song","A crown","A map of Canaan"], correct:0, ref:"Exodus 20", info:"God gave the law, including the Ten Commandments, to Moses on the mountain."},
+  {book:"Joshua", q:"Which city's walls fell after the people marched around it?", options:["Jericho","Ai","Hebron","Gilgal"], correct:0, ref:"Joshua 6:20", info:"The people shouted, and the walls of Jericho fell down."},
+  {book:"Judges", q:"Who was the judge who sat under a palm tree?", options:["Deborah","Hannah","Huldah","Miriam"], correct:0, ref:"Judges 4:5", info:"Deborah judged Israel and led them with courage."},
+  {book:"Ruth", q:"In whose field did Ruth gather grain?", options:["Boaz","Elimelech","Obed","Naomi's brother"], correct:0, ref:"Ruth 2:3", info:"Ruth gleaned in the field of Boaz, a relative of Naomi."},
+  {book:"Esther", q:"What was Esther's Jewish name?", options:["Hadassah","Miriam","Dinah","Rahab"], correct:0, ref:"Esther 2:7", info:"Esther was also known as Hadassah, and she was raised by her cousin Mordecai."},
+  {book:"Daniel", q:"Into what were Daniel's three friends thrown for refusing to bow down?", options:["The lions' den","The fiery furnace","A deep pit","The sea"], correct:1, ref:"Daniel 3", info:"God was with Shadrach, Meshach and Abednego in the furnace."},
+  {book:"2 Kings", q:"Who was taken up to heaven in a chariot of fire?", options:["Elijah","Moses","Enoch","Ezekiel"], correct:0, ref:"2 Kings 2:11", info:"Elijah went up to heaven in a whirlwind."},
+  {book:"Proverbs", q:"According to Proverbs, what is the beginning of knowledge?", options:["The fear of the LORD","Great wealth","Silver and gold","Strength of arms"], correct:0, ref:"Proverbs 1:7", info:"Reverence for God is where wisdom begins."},
+  {book:"Matthew", q:"Which teaching begins with the Beatitudes?", options:["The Sermon on the Mount","The Feeding of the Five Thousand","The Parable of the Sower","The Olivet Discourse"], correct:0, ref:"Matthew 5:1-12", info:"Jesus taught the blessed and the humble on the mountainside."},
+  {book:"Luke", q:"Which Gospel writer is described as a physician?", options:["Mark","Luke","John","Matthew"], correct:1, ref:"Colossians 4:14", info:"Luke, the beloved physician, was a companion of Paul."},
+  {book:"Mark", q:"Who carried the cross for Jesus?", options:["Barabbas","Simon of Cyrene","Joseph of Arimathea","Nicodemus"], correct:1, ref:"Mark 15:21", info:"Simon of Cyrene was made to carry the cross."},
+  {book:"John", q:"What did Jesus call himself in John 10?", options:["The good shepherd","The fisherman","The carpenter","The tax collector"], correct:0, ref:"John 10:11", info:"Jesus said, I am the good shepherd, who lays down his life for the sheep."},
+  {book:"Acts", q:"Who was the first Christian martyr?", options:["Stephen","James","Barnabas","Silas"], correct:0, ref:"Acts 7:59-60", info:"Stephen was stoned for his witness, and he forgave those who killed him."},
+  {book:"Acts", q:"At which festival did the Holy Spirit come upon the believers?", options:["Passover","Pentecost","Tabernacles","Purim"], correct:1, ref:"Acts 2:1", info:"On the day of Pentecost, the disciples were filled with the Holy Spirit."},
+  {book:"Romans", q:"According to Romans 8:28, what does God work together for good?", options:["All things","Only the rich","Nothing","Only the priests"], correct:0, ref:"Romans 8:28", info:"God works all things together for good for those who love him."},
+  {book:"Philippians", q:"What did Paul say he could do through Christ who strengthens him?", options:["All things","Nothing","Only small tasks","Only what is easy"], correct:0, ref:"Philippians 4:13", info:"Paul wrote that he could do all things through Christ who strengthens him."},
+  {book:"Revelation", q:"Which book is the last book of the Bible?", options:["Jude","Revelation","Acts","Hebrews"], correct:1, ref:"Revelation 22", info:"Revelation closes the Bible with the vision of a new heaven and a new earth."}
+];
+const BIBLE_QUIZ = [...QUICK, ...QUIZ_EXTRA];
+const QUIZ_LENGTH = 10;
+function shuffleArr(a){
+  const b = [...a];
+  for(let i = b.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+  return b;
+}
+let bq = null;
+function runBibleQuiz(){
+  const same = shuffleArr(BIBLE_QUIZ.filter(q => TEST(q.book) === ctx.testament));
+  const other = shuffleArr(BIBLE_QUIZ.filter(q => TEST(q.book) !== ctx.testament));
+  bq = { deck: [...same, ...other].slice(0, QUIZ_LENGTH), i: 0, lives: 3, correct: 0, fifty: true, hint: true, cur: null };
+  stage().innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Bible Trivia</span>
+      <h2>Test your Bible knowledge</h2>
+      ${notice(bq.deck)}
+      <p>${QUIZ_LENGTH} random questions. No question repeats within a quiz.</p>
+      <p class="muted">You have 3 lives. A wrong answer costs one life. You also have two lifelines: 50:50 removes two wrong options, and Hint shows which book the question comes from.</p>
+      <button id="bq-go">Start quiz</button>
+    </div>`;
+  document.getElementById("bq-go").onclick = bqQuestion;
+}
+function bqQuestion(){
+  if(bq.lives <= 0 || bq.i >= bq.deck.length) return bqEnd();
+  const q = bq.deck[bq.i];
+  bq.cur = { q, order: shuffleArr(q.options.map((_, k) => k)), removed: [], answered: false };
+  bqDraw();
+}
+function bqDraw(){
+  const c = bq.cur, q = c.q;
+  stage().innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Question ${bq.i + 1} of ${bq.deck.length}</span>
+      <div class="feedback">Lives: ${"❤️".repeat(bq.lives)} &nbsp; Correct so far: <span class="score">${bq.correct}</span></div>
+      <h3>${escapeHtml(q.q)}</h3>
+      <div style="margin:6px 0">
+        <button id="bq-fifty" class="alt" ${bq.fifty && !c.answered ? "" : "disabled"}>50:50</button>
+        <button id="bq-hint" class="alt" ${bq.hint && !c.answered ? "" : "disabled"}>Hint</button>
+      </div>
+      <div id="bq-opts"></div>
+      <div id="bq-fb"></div>
+    </div>`;
+  const box = document.getElementById("bq-opts");
+  c.order.forEach(k => {
+    if(c.removed.includes(k)) return;
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.dataset.k = k;
+    b.textContent = q.options[k];
+    b.onclick = () => bqAnswer(k);
+    box.appendChild(b);
+  });
+  document.getElementById("bq-fifty").onclick = bqFifty;
+  document.getElementById("bq-hint").onclick = bqHint;
+}
+function bqFifty(){
+  const c = bq.cur;
+  bq.fifty = false;
+  c.removed = shuffleArr(c.order.filter(k => k !== c.q.correct)).slice(0, 2);
+  bqDraw();
+}
+function bqHint(){
+  bq.hint = false;
+  document.getElementById("bq-hint").disabled = true;
+  document.getElementById("bq-fb").innerHTML = `<div class="feedback">Hint: this question comes from the book of <strong>${escapeHtml(bq.cur.q.book)}</strong>.</div>`;
+}
+function bqAnswer(k){
+  const c = bq.cur;
+  if(c.answered) return;
+  c.answered = true;
+  const ok = k === c.q.correct;
+  if(ok) bq.correct++; else bq.lives--;
+  document.getElementById("bq-fifty").disabled = true;
+  document.getElementById("bq-hint").disabled = true;
+  document.querySelectorAll("#bq-opts button").forEach(b => b.disabled = true);
+  const right = document.querySelector(`#bq-opts [data-k="${c.q.correct}"]`);
+  if(right) right.classList.add("correct");
+  if(!ok){
+    const wrong = document.querySelector(`#bq-opts [data-k="${k}"]`);
+    if(wrong) wrong.classList.add("wrong");
+  }
+  const last = bq.lives <= 0 || bq.i === bq.deck.length - 1;
+  document.getElementById("bq-fb").insertAdjacentHTML("beforeend", `
+    <div class="feedback">${ok ? "Correct." : "Not quite. You lost a life."} <span class="muted">Reference: ${c.q.ref}</span><br>${c.q.info}</div>
+    <button id="bq-next">${last ? T("finish") : "Next question"}</button>`);
+  document.getElementById("bq-next").onclick = () => { bq.i++; bqQuestion(); };
+}
+function bqEnd(){
+  const total = bq.deck.length;
+  withHH("Bible Trivia", bq.correct, total,
+    `You answered ${bq.correct} of ${total} correctly. Which question today taught you something new about God's word?`,
+    "Share one question from today's quiz with a friend or family member this week.");
+}
+
+/* ===== BIBLE CHARACTERS: guess the character from clues; fewer clues, more points ===== */
+const BIBLE_CHARS = [
+  {book:"Esther", name:"Esther", ref:"Esther 2-4", info:"Esther risked her life to plead with the king for her people.",
+   clues:["I was a Jewish woman raised by my cousin in a foreign land.","I was chosen to become queen of a great Persian king.","At first I did not reveal who my people were.","My cousin asked me to plead with the king for my people.","I said: 'If I perish, I perish.' Who am I?"]},
+  {book:"Moses", name:"Moses", ref:"Exodus 2-3; 20", info:"Moses led the people out of Egypt and received the law on Mount Sinai.",
+   clues:["I was born when the king of Egypt ordered baby boys to be killed.","My mother hid me in a basket among the reeds of the river.","Pharaoh's daughter found me and raised me in the palace.","God spoke to me from a burning bush.","I led my people out of Egypt and received the law on a mountain. Who am I?"]},
+  {book:"Ruth", name:"Ruth", ref:"Ruth 1-4", info:"Ruth's loyalty to Naomi led to a place in the line of King David.",
+   clues:["I was a Moabite woman who married into an Israelite family.","After my husband died, I stayed with my mother-in-law.","I went out to gather grain in the fields to provide for us.","I became the great-grandmother of King David. Who am I?"]},
+  {book:"Daniel", name:"Daniel", ref:"Daniel 1; 6", info:"Daniel was faithful to God in Babylon, even in the lions' den.",
+   clues:["I was taken as a young man from Judah to serve in Babylon.","I refused to eat the king's food and chose vegetables and water.","I interpreted the king's dreams.","I was thrown into a den of lions.","God shut the mouths of the lions. Who am I?"]},
+  {book:"Miriam", name:"Miriam", ref:"Exodus 2:4; 15:20-21", info:"Miriam watched over her baby brother and led the women in song after the Red Sea.",
+   clues:["I was the sister of Moses and Aaron.","I watched over my baby brother when he was placed in the river.","I was a prophetess who led the women in song.","After the Red Sea I sang and danced with a tambourine.","I spoke against Moses and was struck with a skin disease. Who am I?"]},
+  {book:"Samuel", name:"Samuel", ref:"1 Samuel 1-3; 16", info:"Samuel grew up in the temple, heard God's call and anointed Israel's first two kings.",
+   clues:["My mother dedicated me to serve at the house of the LORD.","As a boy I heard the LORD calling my name at night.","I was a prophet who judged Israel.","I anointed Israel's first king, Saul.","I later anointed a young shepherd named David. Who am I?"]},
+  {book:"Matthew", name:"Peter", ref:"Matthew 4:18-19; 14:29-31; 26:69-75; John 21", info:"Peter was a fisherman who followed Jesus, denied him and was restored.",
+   clues:["I was a fisherman from Galilee.","Jesus called me to become a fisher of people.","I walked on water for a few steps before I began to sink.","I denied my Lord three times before the rooster crowed.","Jesus restored me by the lake and asked me three times if I loved him. Who am I?"]},
+  {book:"Luke", name:"Zacchaeus", ref:"Luke 19:1-10", info:"Zacchaeus changed his life after Jesus visited his home.",
+   clues:["I was a tax collector in Jericho.","I was short in stature.","I climbed a sycamore tree to see Jesus.","Jesus invited himself to my house.","I promised to give half my goods to the poor. Who am I?"]},
+  {book:"Acts", name:"Paul", ref:"Acts 9:1-19", info:"Paul, once a persecutor, became a missionary and wrote many letters to the churches.",
+   clues:["I was a Pharisee from Tarsus and once persecuted the church.","I was blinded on the road to Damascus.","Ananias prayed for me, and my sight returned.","I wrote many letters to the churches.","I was once known as Saul. Who am I?"]},
+  {book:"Acts", name:"Barnabas", ref:"Acts 4:36-37; 9:27; 15:36-39", info:"Barnabas means son of encouragement, and he encouraged others, including Saul.",
+   clues:["I was a Levite from Cyprus.","I sold a field and gave the money to the apostles.","When the believers feared Saul, I brought him to the apostles.","The apostles called me son of encouragement.","I travelled with Paul, and later with John Mark. Who am I?"]}
+];
+const CHAR_ROUND = 5;
+let bc = null;
+function runCharacters(){
+  const same = shuffleArr(BIBLE_CHARS.filter(c => TEST(c.book) === ctx.testament));
+  const other = shuffleArr(BIBLE_CHARS.filter(c => TEST(c.book) !== ctx.testament));
+  bc = { deck: [...same, ...other].slice(0, CHAR_ROUND), i: 0, lives: 3, points: 0, shown: 1, solved: false, wrong: [], options: null };
+  stage().innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Bible Characters</span>
+      <h2>Who am I?</h2>
+      ${notice(bc.deck)}
+      <p>${CHAR_ROUND} characters. Clues are revealed one at a time. Guess as soon as you know the answer: solving after the first clue is worth 5 points, after the second 4, and so on.</p>
+      <p class="muted">You have 3 lives. Each wrong guess costs one life. Characters do not repeat within a game.</p>
+      <button id="bc-go">Start</button>
+    </div>`;
+  document.getElementById("bc-go").onclick = bcRound;
+}
+function bcRound(){
+  if(bc.lives <= 0 || bc.i >= bc.deck.length) return bcEnd();
+  bc.shown = 1; bc.solved = false; bc.wrong = []; bc.options = null;
+  bcDraw();
+}
+function bcDraw(){
+  const c = bc.deck[bc.i];
+  const done = bc.solved || bc.lives <= 0;
+  const clues = c.clues.slice(0, bc.shown).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+  let body;
+  if(done){
+    const msg = bc.solved
+      ? `<span class="score">Correct: ${escapeHtml(c.name)}</span> (+${6 - bc.shown} points)`
+      : `Out of lives. The answer was <strong>${escapeHtml(c.name)}</strong>.`;
+    const last = bc.lives <= 0 || bc.i === bc.deck.length - 1;
+    body = `<div class="feedback">${msg}<br>${escapeHtml(c.info)}<br><span class="muted">Reference: ${c.ref}</span></div>
+            <button id="bc-next">${last ? T("finish") : "Next character"}</button>`;
+  } else {
+    body = `<div style="margin:6px 0">
+              ${bc.shown < c.clues.length ? '<button id="bc-clue" class="alt">Reveal next clue</button>' : ""}
+              <button id="bc-guess">Guess now</button>
+            </div>
+            <div id="bc-opts"></div>`;
+  }
+  stage().innerHTML = `
+    <div class="card">
+      <span class="badge b-game">Character ${bc.i + 1} of ${bc.deck.length}</span>
+      <div class="feedback">Lives: ${"❤️".repeat(bc.lives)} &nbsp; Points: <span class="score">${bc.points}</span></div>
+      <p class="muted">Clue ${bc.shown} of ${c.clues.length}</p>
+      <ol>${clues}</ol>
+      ${body}
+    </div>`;
+  const clueBtn = document.getElementById("bc-clue");
+  if(clueBtn) clueBtn.onclick = () => { bc.shown++; bcDraw(); if(bc.options) bcOptions(); };
+  const guessBtn = document.getElementById("bc-guess");
+  if(guessBtn) guessBtn.onclick = () => bcOptions();
+  const nextBtn = document.getElementById("bc-next");
+  if(nextBtn) nextBtn.onclick = () => { bc.i++; bcRound(); };
+  if(!done && bc.options) bcOptions();
+}
+function bcOptions(){
+  const c = bc.deck[bc.i];
+  if(!bc.options){
+    const distract = shuffleArr(BIBLE_CHARS.filter(x => x.name !== c.name).map(x => x.name)).slice(0, 3);
+    bc.options = shuffleArr([c.name, ...distract]);
+  }
+  const box = document.getElementById("bc-opts");
+  if(!box) return;
+  box.innerHTML = bc.options.map(n => {
+    const wrong = bc.wrong.includes(n);
+    return `<button class="opt ${wrong ? "wrong" : ""}" data-n="${escapeHtml(n)}" ${wrong ? "disabled" : ""}>${escapeHtml(n)}</button>`;
+  }).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => bcGuess(b.dataset.n));
+}
+function bcGuess(n){
+  const c = bc.deck[bc.i];
+  if(n === c.name){
+    bc.solved = true;
+    bc.points += 6 - bc.shown;
+    return bcDraw();
+  }
+  bc.wrong.push(n);
+  bc.lives--;
+  bcDraw();
+}
+function bcEnd(){
+  const max = bc.deck.length * 5;
+  withHH("Bible Characters", bc.points, max,
+    `You scored ${bc.points} of ${max} points. Which character from today encouraged you most?`,
+    "Tell someone about one Bible character you met today and what you learned from them.");
+}
+
+/* ---------- Configuration loading ----------
+   config.json holds public settings only (the media proxy address and
+   fileset choices). It is read at start-up; if it cannot be read, the
+   game still runs with the placeholders above. */
+let APP_CONFIG = {};
+async function loadConfig(){
+  try{
+    const r = await fetch("config.json", { cache: "no-cache" });
+    if(!r.ok) throw new Error("config not found");
+    APP_CONFIG = await r.json();
+    const base = (APP_CONFIG.api && APP_CONFIG.api.base) || "";
+    const m = APP_CONFIG.media || {};
+    const url = path => path ? base + path : "";
+    CONFIG.echoAudio = url(m.echo);
+    CONFIG.sceneVideo = url(m.sceneVideo);
+    CONFIG.covenantAudio = url(m.covenantAudio);
+    CONFIG.quizAudio = url(m.quizAudio);
+  }catch(e){
+    APP_CONFIG = {};
+  }
+}
+
+/* Service worker: lets the game open offline once installed */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
+
+loadConfig().then(() => {
+  if(activePlayer()){ go("home"); } else { showProfile(true); }
+});
+</script>
+</body>
+</html>
